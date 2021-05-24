@@ -227,19 +227,112 @@ namespace Appli_CocoriCO2
         }
 
 
+        private void checkConnection()
+        {
+            switch (ws.State)
+            {
+                case WebSocketState.Open:
+                    Connect_btn.Header = "Disconnect";
+                    Connect_btn.IsEnabled = true;
+                    statusLabel.Text = "Connection Status: Connected";
 
+                    sendRequest();
+                    break;
+                case WebSocketState.Closed:
+                    Connect_btn.Header = "Connect";
+                    Connect_btn.IsEnabled = true;
+                    statusLabel.Text = "Connection Status: Disconnected";
+                    ws = new ClientWebSocket();
+                    Connect();
+                    break;
+                case WebSocketState.Aborted:
+                    ws.Dispose();
+                    ws = new ClientWebSocket();
+                    Connect_btn.Header = "Connect";
+                    Connect_btn.IsEnabled = true;
+                    statusLabel.Text = "Connection Status: Disconnected";
+                    Connect();
+                    break;
+                case WebSocketState.None:
+                    Connect_btn.Header = "Connect";
+                    Connect_btn.IsEnabled = true;
+                    statusLabel.Text = "Connection Status: Disconnected";
+                    Connect();
+                    break;
+                case WebSocketState.Connecting:
+                    Connect_btn.Header = "Connecting";
+                    Connect_btn.IsEnabled = false;
+                    statusLabel.Text = "Connection Status: Connecting";
+                    break;
+            }
+
+        }
+
+        private void sendRequest()
+        {
+            string msg = "";
+
+            var Timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+            switch (step)
+            {
+                case 0:
+                    msg = "{command:1,condID:0, senderID:4}";
+                    break;
+                case 1:
+                    msg = "{command:1,condID:1, senderID:4}";
+                    break;
+                case 2:
+                    msg = "{command:1,condID:2, senderID:4}";
+                    break;
+                case 3:
+                    msg = "{command:1,condID:3, senderID:4}";
+                    break;
+                case 4:
+                    msg = "{command:5,condID:0, senderID:4, time:" + Timestamp + "}";
+                    break;
+            }
+            if (step < 4) step++; else step = 0;
+
+            comDebugWindow.tb1.Text = msg;
+
+                Task<string> t2 = Send(ws, msg, comDebugWindow.tb2);
+                t2.Wait(50);
+        }
+        
         
         private static async Task Connect(ClientWebSocket ws, TextBox tb)
         {
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.Token.ThrowIfCancellationRequested();
             string address = Properties.Settings.Default["MasterIPAddress"].ToString();
             Uri serverUri = new Uri("ws://"+address+":81");
-                await ws.ConnectAsync(serverUri, CancellationToken.None);
+
+            try
+            {
+                await ws.ConnectAsync(serverUri, cts.Token);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+
             if (ws.State == WebSocketState.Open)
             {
+                CancellationTokenSource cts1 = new CancellationTokenSource();
+                cts1.Token.ThrowIfCancellationRequested();
                 ArraySegment<byte> bytesReceived = new ArraySegment<byte>(new byte[1024]);
-                WebSocketReceiveResult result = await ws.ReceiveAsync(
-                    bytesReceived, CancellationToken.None);
-                tb.Text = Encoding.UTF8.GetString(bytesReceived.Array, 0, result.Count);
+                
+                try
+                {
+                    WebSocketReceiveResult result = await ws.ReceiveAsync(
+                    bytesReceived, cts1.Token);
+                    tb.Text = Encoding.UTF8.GetString(bytesReceived.Array, 0, result.Count);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
 
         }
@@ -386,68 +479,6 @@ namespace Appli_CocoriCO2
 
 
 
-        private void checkConnection()
-        {
-            
-            switch (ws.State)
-            {
-                case WebSocketState.Open:
-                    Connect_btn.Header = "Disconnect";
-                    Connect_btn.IsEnabled = true;
-                    statusLabel.Text = "Connection Status: Connected";
-                    break;
-                case WebSocketState.Closed:
-                case WebSocketState.Aborted:
-                case WebSocketState.None:
-                    Connect_btn.Header = "Connect";
-                    Connect_btn.IsEnabled = true;
-                    statusLabel.Text = "Connection Status: Disconnected";
-                    break;
-                case WebSocketState.Connecting:
-                    Connect_btn.Header = "Connecting";
-                    Connect_btn.IsEnabled = false;
-                    statusLabel.Text = "Connection Status: Connecting";
-                    break;
-            }
-
-            string msg = "";
-
-            var Timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
-                switch (step)
-                {
-                    case 0:
-                        msg = "{command:1,condID:0, senderID:4}";
-                        break;
-                    case 1:
-                        msg = "{command:1,condID:1, senderID:4}";
-                        break;
-                    case 2:
-                        msg = "{command:1,condID:2, senderID:4}";
-                        break;
-                    case 3:
-                        msg = "{command:1,condID:3, senderID:4}";
-                        break;
-                    case 4:
-                        msg = "{command:5,condID:0, senderID:4, time:" + Timestamp + "}";
-                        break;
-                }
-                if (step < 4) step++; else step = 0;
-            
-            
-
-            comDebugWindow.tb1.Text = msg;
-
-            if (ws.State == WebSocketState.Open)
-            {
-                Task<string> t2 = Send(ws, msg, comDebugWindow.tb2);
-                t2.Wait(50);
-            }
-            else
-            {
-                Connect();
-            }
-            
-        }
 
         private void sendParams()
         {
@@ -516,11 +547,23 @@ namespace Appli_CocoriCO2
         {
             int t;
             Int32.TryParse(Properties.Settings.Default["dataQueryInterval"].ToString(), out t);
-            var dueTime = TimeSpan.FromSeconds(t);
+            var dueTime = TimeSpan.FromSeconds(0);
             var interval = TimeSpan.FromSeconds(t);
 
+            var cancel = new CancellationTokenSource();
+            cancel.Token.ThrowIfCancellationRequested();
+
             // TODO: Add a CancellationTokenSource and supply the token here instead of None.
-            await RunPeriodicAsync(checkConnection, dueTime, interval, CancellationToken.None);
+            try
+            {
+
+                await RunPeriodicAsync(checkConnection, dueTime, interval, cancel.Token);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                await InitializeAsync();
+            }
         }
 
         private async Task InitializeAsyncSendParams()
@@ -531,7 +574,21 @@ namespace Appli_CocoriCO2
             var interval = TimeSpan.FromSeconds(5);
 
             // TODO: Add a CancellationTokenSource and supply the token here instead of None.
-            await RunPeriodicAsync(sendParams, dueTime, interval, CancellationToken.None);
+
+            var cancel = new CancellationTokenSource();
+            cancel.Token.ThrowIfCancellationRequested();
+
+            // TODO: Add a CancellationTokenSource and supply the token here instead of None.
+            try
+            {
+
+                await RunPeriodicAsync(sendParams, dueTime, interval, cancel.Token);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                await InitializeAsyncSendParams();
+            }
         }
 
         private void Connect_Click(object sender, RoutedEventArgs e)
