@@ -9,20 +9,20 @@
         Title="Experiment Settings" Height="450" Width="800" Closing="Window_Closing">
     <Grid>
 
-        <Grid>
+        <Grid Margin="0,2,0,-2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="149*"/>
                 <ColumnDefinition Width="643*"/>
             </Grid.ColumnDefinitions>
-            <TextBox HorizontalAlignment="Left" Height="20" Margin="1,132,0,0" TextWrapping="Wrap"  x:Name="tb_Cond_setPoint" Text="" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
-            <Label x:Name="label_Cond_setPoint" Content="Cond setpoint" HorizontalAlignment="Left" Margin="10,129,0,0" VerticalAlignment="Top" Height="25" Width="117"/>
-            <Label x:Name="label_Cond_title" Content="CO2 Valve regulation" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Height="25" Width="143" Grid.ColumnSpan="2" FontWeight="Bold"/>
-            <TextBox HorizontalAlignment="Left" Height="20" Margin="1,187,0,0" TextWrapping="Wrap"  x:Name="tb_Cond_Kp" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
-            <Label Content="Kp" HorizontalAlignment="Left" Margin="10,184,0,0" VerticalAlignment="Top" Height="25" Width="84"/>
-            <TextBox HorizontalAlignment="Left" Height="20" Margin="1,213,0,0" TextWrapping="Wrap"  x:Name="tb_Cond_Ki" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
-            <Label Content="Ki" HorizontalAlignment="Left" Margin="10,210,0,0" VerticalAlignment="Top" Height="25" Width="84"/>
-            <TextBox HorizontalAlignment="Left" Height="20" Margin="1,239,0,0" TextWrapping="Wrap"  x:Name="tb_Cond_Kd" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
-            <Label Content="Kd" HorizontalAlignment="Left" Margin="10,236,0,0" VerticalAlignment="Top" Height="25" Width="83"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="1,175,0,0" TextWrapping="Wrap"  x:Name="tb_Cond_setPoint" Text="" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
+            <Label x:Name="label_Cond_setPoint" Content="Salinity setpoint" HorizontalAlignment="Left" Margin="10,172,0,0" VerticalAlignment="Top" Height="25" Width="117"/>
+            <Label x:Name="label_Cond_title" Content="Pressure regulation" HorizontalAlignment="Left" Margin="10,84,0,0" VerticalAlignment="Top" Height="30" Width="143" Grid.ColumnSpan="2" FontWeight="Bold"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="1,228,0,0" TextWrapping="Wrap"  x:Name="tb_Cond_Kp" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
+            <Label Content="Kp" HorizontalAlignment="Left" Margin="10,225,0,0" VerticalAlignment="Top" Height="25" Width="84"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="1,254,0,0" TextWrapping="Wrap"  x:Name="tb_Cond_Ki" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
+            <Label Content="Ki" HorizontalAlignment="Left" Margin="10,251,0,0" VerticalAlignment="Top" Height="25" Width="84"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="1,280,0,0" TextWrapping="Wrap"  x:Name="tb_Cond_Kd" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
+            <Label Content="Kd" HorizontalAlignment="Left" Margin="10,277,0,0" VerticalAlignment="Top" Height="25" Width="83"/>
             <ComboBox x:Name="comboBox_Condition" HorizontalAlignment="Left" Margin="10,29,0,0" VerticalAlignment="Top" Width="240" SelectionChanged="comboBox_Condition_SelectionChanged" Grid.ColumnSpan="2">
                 <ComboBoxItem Content="Ambiant Condition"/>
                 <ComboBoxItem Content="Condition 1"/>
@@ -32,27 +32,31 @@
             <TextBox HorizontalAlignment="Left" Height="20" Margin="1,326,0,0" TextWrapping="Wrap"  x:Name="tb_Cond_consigneForcage"  VerticalAlignment="Top" Width="100" Grid.Column="1"/>
             <CheckBox x:Name="checkBox_Cond_Override" Content="Manual Override" HorizontalAlignment="Left" Margin="19,328,0,0" VerticalAlignment="Top"/>
             <Label Content="%" HorizontalAlignment="Left" Margin="101,325,0,0" VerticalAlignment="Top" Height="25" Width="143" Grid.Column="1"/>
-            <TextBox HorizontalAlignment="Left" Height="20" Margin="366,132,0,0" TextWrapping="Wrap"  x:Name="tb_Temp_setPoint" Text="" VerticalAlignment="Top" Width="100" Grid.Column="1" IsEnabled="False"/>
-            <Label x:Name="label_Temp_setpoint" Content="Temperature setpoint" HorizontalAlignment="Left" Margin="226,129,0,0" VerticalAlignment="Top" Height="25" Width="126" Grid.Column="1"/>
-            <Label x:Name="label_Temp_title" Content="Temperature regulation" HorizontalAlignment="Left" Margin="226,70,0,0" VerticalAlignment="Top" Height="25" Width="143" Grid.Column="1" FontWeight="Bold"/>
-            <TextBox HorizontalAlignment="Left" Height="20" Margin="366,187,0,0" TextWrapping="Wrap"  x:Name="tb_Temp_Kp" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
-            <Label x:Name="label_Temp_Kp" Content="Kp" HorizontalAlignment="Left" Margin="226,184,0,0" VerticalAlignment="Top" Height="25" Width="84" Grid.Column="1"/>
-            <TextBox HorizontalAlignment="Left" Height="20" Margin="366,213,0,0" TextWrapping="Wrap"  x:Name="tb_Temp_Ki" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
-            <Label x:Name="label_Temp_Ki" Content="Ki" HorizontalAlignment="Left" Margin="226,210,0,0" VerticalAlignment="Top" Height="25" Width="84" Grid.Column="1"/>
-            <TextBox HorizontalAlignment="Left" Height="20" Margin="366,239,0,0" TextWrapping="Wrap"  x:Name="tb_Temp_Kd" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
-            <Label x:Name="label_Temp_Kd" Content="Kd" HorizontalAlignment="Left" Margin="226,236,0,0" VerticalAlignment="Top" Height="25" Width="83" Grid.Column="1"/>
-            <TextBox HorizontalAlignment="Left" Height="20" Margin="366,326,0,0" TextWrapping="Wrap"  x:Name="tb_Temp_consigneForcage"  VerticalAlignment="Top" Width="100" Grid.Column="1"/>
-            <CheckBox x:Name="checkBox_Temp_Override" Content="Manual Override" HorizontalAlignment="Left" Margin="235,328,0,0" VerticalAlignment="Top" Grid.Column="1"/>
-            <Label x:Name="label_pc2" Content="%" HorizontalAlignment="Left" Margin="466,325,0,0" VerticalAlignment="Top" Height="25" Width="143" Grid.Column="1"/>
-            <TextBox HorizontalAlignment="Left" Height="20" Margin="365,105,0,0" TextWrapping="Wrap"  x:Name="tb_dT_setPoint" Text="" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
-            <Label x:Name="label_dT" Content="delta T°C setpoint" HorizontalAlignment="Left" Margin="226,100,0,0" VerticalAlignment="Top" Height="25" Width="117" Grid.Column="1"/>
-            <TextBox HorizontalAlignment="Left" Height="20" Margin="0,105,0,0" TextWrapping="Wrap"  x:Name="tb_dCond_setPoint" Text="" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
-            <Label x:Name="label_dCond" Content="delta Cond setpoint" HorizontalAlignment="Left" Margin="10,100,0,0" VerticalAlignment="Top" Height="25" Width="117"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="440,175,0,0" TextWrapping="Wrap"  x:Name="tb_Temp_setPoint" Text="" VerticalAlignment="Top" Width="100" Grid.Column="1" IsEnabled="False"/>
+            <Label x:Name="label_Temp_setpoint" Content="Temperature setpoint" HorizontalAlignment="Left" Margin="300,172,0,0" VerticalAlignment="Top" Height="25" Width="126" Grid.Column="1"/>
+            <Label x:Name="label_Temp_title" Content="Temperature regulation" HorizontalAlignment="Left" Margin="300,84,0,0" VerticalAlignment="Top" Height="30" Width="143" Grid.Column="1" FontWeight="Bold"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="440,228,0,0" TextWrapping="Wrap"  x:Name="tb_Temp_Kp" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
+            <Label x:Name="label_Temp_Kp" Content="Kp" HorizontalAlignment="Left" Margin="300,225,0,0" VerticalAlignment="Top" Height="25" Width="84" Grid.Column="1"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="440,254,0,0" TextWrapping="Wrap"  x:Name="tb_Temp_Ki" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
+            <Label x:Name="label_Temp_Ki" Content="Ki" HorizontalAlignment="Left" Margin="300,251,0,0" VerticalAlignment="Top" Height="25" Width="84" Grid.Column="1"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="440,280,0,0" TextWrapping="Wrap"  x:Name="tb_Temp_Kd" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
+            <Label x:Name="label_Temp_Kd" Content="Kd" HorizontalAlignment="Left" Margin="300,277,0,0" VerticalAlignment="Top" Height="25" Width="83" Grid.Column="1"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="440,326,0,0" TextWrapping="Wrap"  x:Name="tb_Temp_consigneForcage"  VerticalAlignment="Top" Width="100" Grid.Column="1"/>
+            <CheckBox x:Name="checkBox_Temp_Override" Content="Manual Override" HorizontalAlignment="Left" Margin="309,328,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+            <Label x:Name="label_pc2" Content="%" HorizontalAlignment="Left" Margin="540,325,0,0" VerticalAlignment="Top" Height="25" Width="38" Grid.Column="1"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="439,148,0,0" TextWrapping="Wrap"  x:Name="tb_dT_setPoint" Text="" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
+            <Label x:Name="label_dT" Content="delta T°C setpoint" HorizontalAlignment="Left" Margin="300,143,0,0" VerticalAlignment="Top" Height="25" Width="117" Grid.Column="1"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="0,148,0,0" TextWrapping="Wrap"  x:Name="tb_dCond_setPoint" Text="" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
+            <Label x:Name="label_dCond" Content="delta Salinity setpoint" HorizontalAlignment="Left" Margin="10,143,0,0" VerticalAlignment="Top" Height="25" Width="129"/>
+            <Label x:Name="label_dCond_Formula" Content="delta Salinity = " HorizontalAlignment="Left" Margin="10,113,0,0" VerticalAlignment="Top" Height="25" Width="117"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="102,118,0,0" TextWrapping="Wrap"  x:Name="tb_dCond_a" Text="" VerticalAlignment="Top" Width="51" Grid.ColumnSpan="2"/>
+            <Label x:Name="label_dCond_Formula_2" Content="x Ambient T°C +" HorizontalAlignment="Left" Margin="9,113,0,0" VerticalAlignment="Top" Height="25" Width="117" Grid.Column="1"/>
+            <TextBox HorizontalAlignment="Left" Height="20" Margin="112,118,0,0" TextWrapping="Wrap"  x:Name="tb_dCond_b" Text="" VerticalAlignment="Top" Width="51" Grid.Column="1"/>
         </Grid>
         <Button x:Name="btn_SaveToPLC" Content="Save to PLC" Margin="0,0,174,16"  Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="120" Click="btn_SaveToPLC_Click"/>
         <Button x:Name="btn_Cancel" Content="Cancel" Margin="0,0,15,16"  Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="120" Click="btn_Cancel_Click"/>
         <Button x:Name="btn_LoadFromPLC" Content="Load from PLC" Margin="0,0,332,16" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="120" Click="btn_LoadFromPLC_Click"/>
-        <Button x:Name="btn_SaveToFile" Content="Save Config" Margin="0,0,483,16"  Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="120" Click="btn_SaveToFile_Click"/>
+        <Button x:Name="btn_UpdateDeltaCond" Content="Update" Margin="0,0,396,274"  Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="67" Click="btn_UpdateDeltaCond_Click"/>
 
     </Grid>
 </Window>

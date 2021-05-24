@@ -47,9 +47,14 @@ namespace Appli_CocoriCO2
 
         private void btn_LoadFromPLC_Click(object sender, RoutedEventArgs e)
         {
+            load(comboBox_Condition.SelectedIndex);
+        }
+
+        public void load(int index)
+        {
             //{command:0,condID:0,senderID:4}
-            string msg = "{command:0,condID:"+ comboBox_Condition.SelectedIndex+", senderID:4}";
-           
+            string msg = "{command:0,condID:" + index + ", senderID:4}";
+
 
             if (((MainWindow)Application.Current.MainWindow).ws.State == WebSocketState.Open)
             {
@@ -57,7 +62,6 @@ namespace Appli_CocoriCO2
                 t2.Wait(50);
                 refreshParams();
             }
-
         }
 
         private void btn_SaveToPLC_Click(object sender, RoutedEventArgs e)
@@ -77,19 +81,35 @@ namespace Appli_CocoriCO2
             if (Double.TryParse(tb_Cond_Kd.Text, out dTemp)) c.regulSalinite.Kd = dTemp;
             if (Double.TryParse(tb_dCond_setPoint.Text, out dTemp)) c.regulSalinite.offset = dTemp;
 
-            /*
-             * {"command":2,"condID":0,"time":"1611595972","regulTemp":{"consigne":0,"Kp":0,"Ki":0,"Kd":0},"regulCond":{"consigne":0,"Kp":0,"Ki":0,"Kd":0}}
-             * */
-            string msg = "{command:2,condID:" + comboBox_Condition.SelectedIndex + ",senderID:4,";
-
             c.regulTemp = new Regul();
-            c.regulTemp.autorisationForcage = (bool)checkBox_Cond_Override.IsChecked;
             if (Int32.TryParse(tb_Temp_consigneForcage.Text, out temp)) c.regulTemp.consigneForcage = temp;
             if (Double.TryParse(tb_Temp_setPoint.Text, out dTemp)) c.regulTemp.consigne = dTemp;
             if (Double.TryParse(tb_Temp_Kp.Text, out dTemp)) c.regulTemp.Kp = dTemp;
             if (Double.TryParse(tb_Temp_Ki.Text, out dTemp)) c.regulTemp.Ki = dTemp;
             if (Double.TryParse(tb_Temp_Kd.Text, out dTemp)) c.regulTemp.Kd = dTemp;
             if (Double.TryParse(tb_dT_setPoint.Text, out dTemp)) c.regulTemp.offset = dTemp;
+
+            c.regulTemp.autorisationForcage = (bool)checkBox_Cond_Override.IsChecked;
+
+            /*
+             * {"command":2,"condID":0,"time":"1611595972","regulTemp":{"consigne":0,"Kp":0,"Ki":0,"Kd":0},"regulCond":{"consigne":0,"Kp":0,"Ki":0,"Kd":0}}
+             * */
+            string msg = buildJsonParams(c);
+
+            ((MainWindow)Application.Current.MainWindow).comDebugWindow.tb1.Text = msg;
+
+
+            if (((MainWindow)Application.Current.MainWindow).ws.State == WebSocketState.Open)
+            {
+                Task<string> t2 = Send(((MainWindow)Application.Current.MainWindow).ws, msg, ((MainWindow)Application.Current.MainWindow).comDebugWindow.tb2);
+                t2.Wait(50);
+            }
+        }
+
+        public string buildJsonParams(Condition c)
+        {
+            string msg = "{command:2,condID:" + c.condID + ",senderID:4,";
+
             msg += "\"regulTemp\":{";
             msg += "\"offset\":" + c.regulTemp.offset.ToString() + ",";
             msg += "\"consigne\":" + c.regulTemp.consigne.ToString() + ",";
@@ -107,17 +127,10 @@ namespace Appli_CocoriCO2
             msg += "\"Kd\":" + c.regulSalinite.Kd.ToString() + ",";
             msg += "\"consigneForcage\":" + c.regulSalinite.consigneForcage + ",";
             msg += "\"autorisationForcage\":\"" + c.regulSalinite.autorisationForcage + "\"}";
-            
+
             msg += "}";
 
-            ((MainWindow)Application.Current.MainWindow).comDebugWindow.tb1.Text = msg;
-
-
-            if (((MainWindow)Application.Current.MainWindow).ws.State == WebSocketState.Open)
-            {
-                Task<string> t2 = Send(((MainWindow)Application.Current.MainWindow).ws, msg, ((MainWindow)Application.Current.MainWindow).comDebugWindow.tb2);
-                t2.Wait(50);
-            }
+            return msg;
         }
 
         private void btn_Cancel_Click(object sender, RoutedEventArgs e)
@@ -151,7 +164,7 @@ namespace Appli_CocoriCO2
 
         private void comboBox_Condition_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            btn_LoadFromPLC_Click(sender, e);
+            load(comboBox_Condition.SelectedIndex);
             if (comboBox_Condition.SelectedIndex == 0)
             {
                 tb_Cond_setPoint.IsEnabled = true;
@@ -161,16 +174,31 @@ namespace Appli_CocoriCO2
                 tb_dCond_setPoint.Visibility = Visibility.Hidden;
                 label_dT.Visibility = Visibility.Hidden;
                 tb_dT_setPoint.Visibility = Visibility.Hidden;
+
+                label_dCond_Formula.Visibility = Visibility.Hidden;
+                label_dCond_Formula_2.Visibility = Visibility.Hidden;
+                tb_dCond_a.Visibility = Visibility.Hidden;
+                tb_dCond_b.Visibility = Visibility.Hidden;
+
+                btn_UpdateDeltaCond.Visibility = Visibility.Hidden;
             }
             else
             {
+                tb_dCond_setPoint.IsEnabled = false;
                 tb_Cond_setPoint.IsEnabled = false;
                 label_Cond_title.Content = "Salinity regulation";
-                label_Cond_setPoint.Content = "Cond. setpoint";
+                label_Cond_setPoint.Content = "Salinity setpoint";
                 label_dCond.Visibility = Visibility.Visible;
                 tb_dCond_setPoint.Visibility = Visibility.Visible;
                 label_dT.Visibility = Visibility.Visible;
                 tb_dT_setPoint.Visibility = Visibility.Visible;
+
+                label_dCond_Formula.Visibility = Visibility.Visible;
+                label_dCond_Formula_2.Visibility = Visibility.Visible;
+                tb_dCond_a.Visibility = Visibility.Visible;
+                tb_dCond_b.Visibility = Visibility.Visible;
+
+                btn_UpdateDeltaCond.Visibility = Visibility.Visible;
             }
             refreshParams();
           }
@@ -178,8 +206,34 @@ namespace Appli_CocoriCO2
         private void refreshParams()
         {
             int condID = comboBox_Condition.SelectedIndex;
-            tb_dCond_setPoint.Text = MW.conditions[condID].regulSalinite.offset.ToString(ci);
-            tb_Cond_setPoint.Text = MW.conditions[condID].regulSalinite.consigne.ToString(ci);
+            if (condID == 0)
+            {
+                tb_dCond_setPoint.Text = MW.conditions[condID].regulSalinite.offset.ToString(ci);
+                tb_Cond_setPoint.Text = MW.conditions[condID].regulSalinite.consigne.ToString(ci);
+            }
+            else
+            {
+                switch (condID)
+                {
+                    case 1:
+                        tb_dCond_a.Text = Properties.Settings.Default["deltaCond_C1_a"].ToString();
+                        tb_dCond_b.Text = Properties.Settings.Default["deltaCond_C1_b"].ToString();
+                        break;
+                    case 2:
+                        tb_dCond_a.Text = Properties.Settings.Default["deltaCond_C2_a"].ToString();
+                        tb_dCond_b.Text = Properties.Settings.Default["deltaCond_C2_b"].ToString();
+                        break;
+                    case 3:
+                        tb_dCond_a.Text = Properties.Settings.Default["deltaCond_C3_a"].ToString();
+                        tb_dCond_b.Text = Properties.Settings.Default["deltaCond_C3_b"].ToString();
+                        break;
+                }
+                calculConsignes(condID);
+
+                tb_dCond_setPoint.Text = MW.conditions[condID].regulSalinite.offset.ToString(ci);
+                tb_Cond_setPoint.Text = MW.conditions[condID].regulSalinite.consigne.ToString(ci);
+            }
+            
             tb_Cond_consigneForcage.Text = MW.conditions[condID].regulSalinite.consigneForcage.ToString(ci);
             tb_Cond_Kp.Text = MW.conditions[condID].regulSalinite.Kp.ToString(ci);
             tb_Cond_Ki.Text = MW.conditions[condID].regulSalinite.Ki.ToString(ci);
@@ -199,6 +253,70 @@ namespace Appli_CocoriCO2
         {
             this.Hide();
             e.Cancel = true;
+        }
+
+        public void calculConsignes(int condID)
+        {
+            double a=0, b=0;
+            switch (condID)
+            {
+                case 1:
+                    Double.TryParse(Properties.Settings.Default["deltaCond_C1_a"].ToString(), NumberStyles.Number, ci, out a);
+                    Double.TryParse(Properties.Settings.Default["deltaCond_C1_b"].ToString(), NumberStyles.Number, ci, out b);
+                    break;
+                case 2:
+                    Double.TryParse(Properties.Settings.Default["deltaCond_C2_a"].ToString(), NumberStyles.Number, ci, out a);
+                    Double.TryParse(Properties.Settings.Default["deltaCond_C2_b"].ToString(), NumberStyles.Number, ci, out b);
+                    break;
+                case 3:
+                    Double.TryParse(Properties.Settings.Default["deltaCond_C3_a"].ToString(), NumberStyles.Number, ci, out a);
+                    Double.TryParse(Properties.Settings.Default["deltaCond_C3_b"].ToString(), NumberStyles.Number, ci, out b);
+                    break;
+            }
+            
+
+
+            double meanTemp = 0;
+            double meanSal = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                meanTemp += MW.conditions[0].Meso[i].temperature / 3;
+                meanSal += MW.conditions[0].Meso[i].cond / 3;
+            }
+            MW.conditions[condID].regulSalinite.offset = a * meanTemp + b;
+            MW.conditions[condID].regulSalinite.consigne = MW.conditions[condID].regulSalinite.offset + meanSal;
+
+            if (condID == 0) MW.conditions[condID].regulTemp.consigne = MW.inSituData.temperature;
+            else MW.conditions[condID].regulTemp.consigne = MW.conditions[condID].regulTemp.offset + meanTemp;
+        }
+
+        private void btn_UpdateDeltaCond_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO:
+            /*
+             * save a et b dans app.config
+             * 
+             */
+            int condID = comboBox_Condition.SelectedIndex;
+            switch (condID)
+            {
+                case 1:
+                    Properties.Settings.Default["deltaCond_C1_a"] = tb_dCond_a.Text;
+                    Properties.Settings.Default["deltaCond_C1_b"] = tb_dCond_b.Text;
+                    break;
+                case 2:
+                    Properties.Settings.Default["deltaCond_C2_a"] = tb_dCond_a.Text;
+                    Properties.Settings.Default["deltaCond_C2_b"] = tb_dCond_b.Text;
+                    break;
+                case 3:
+                    Properties.Settings.Default["deltaCond_C3_a"] = tb_dCond_a.Text;
+                    Properties.Settings.Default["deltaCond_C3_b"] = tb_dCond_b.Text;
+                    break;
+            }
+
+            Properties.Settings.Default.Save();
+
+            refreshParams();
         }
     }
 }

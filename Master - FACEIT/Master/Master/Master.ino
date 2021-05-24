@@ -259,7 +259,6 @@ void setup() {
     delay(1000);
     Serial.println(F("SD BEGIN"));
     SD.begin(53);
-    updateSetPointsData();
     Serial.println(F("end setup"));
 }
 
@@ -278,11 +277,7 @@ void loop() {
         }
     }
     checkMesocosmes();
-    
 
-    if (elapsed(&tempoUpdateSetPoints.debut, tempoUpdateSetPoints.interval)) {
-        updateSetPointsData();
-    }
 
     printToSD();
 }
@@ -349,65 +344,6 @@ float readPressure(int lissage, uint8_t pin, double pression) {
     return pression;
 }
 
-
-
-bool checkSetPointsData() {
-    //TODO
-}
-
-
-void updateSetPointsData() {
-    //TODO
-
-
-    /*const char* path = "param/setpoints.csv";
-    File dataFile = SD.open(path, FILE_READ);
-    uint8_t currentDay = RTC.getMonthDay();
-    uint8_t currentMonth = RTC.getMonth();
-    uint16_t currentYear = RTC.getYear();
-
-
-    if (dataFile) {
-        String line = dataFile.readStringUntil('\n');
-        while (line.length() > 0) {
-            //Serial.print("line:"); Serial.println(line);
-            String date = line.substring(0, line.indexOf(';'));
-            int day = date.substring(0, line.indexOf('/')).toInt();
-            int month = date.substring(line.indexOf('/') + 1, line.lastIndexOf('/')).toInt();
-
-
-            if (day == currentDay && month == currentMonth) {
-                String start = line.substring(line.indexOf(';') + 1, line.lastIndexOf(';'));
-                String end = line.substring(line.lastIndexOf(';') + 1);
-                int startHour = start.substring(0, start.indexOf(':')).toInt();
-                int startMinute = start.substring(start.indexOf(':') + 1).toInt();
-                int endHour = end.substring(0, end.indexOf(':')).toInt();
-                int endMinute = end.substring(end.indexOf(':') + 1).toInt();
-
-                masterData.nextSunUp = dateToTimestamp(currentYear, month, day, startHour, startMinute);
-                masterData.nextSunDown = dateToTimestamp(currentYear, month, day, endHour, endMinute);
-
-                Serial.print("masterData.nextSunUp:"); Serial.println(masterData.nextSunUp);
-                Serial.print("masterData.nextSunDown :"); Serial.println(masterData.nextSunDown);
-
-                /*Serial.print("day:"); Serial.println(day);
-                Serial.print("month:"); Serial.println(month);
-                Serial.print("year:"); Serial.println(year);
-                Serial.print("start:"); Serial.println(start);
-                Serial.print("end:"); Serial.println(end);
-                Serial.print("startHour:"); Serial.println(startHour);
-                Serial.print("start Minute:"); Serial.println(startMinute);
-                Serial.print("end Hour:"); Serial.println(endHour);
-                Serial.print("end Minute:"); Serial.println(endMinute);
-                break;
-            }
-
-            line = dataFile.readStringUntil('\n');
-        }
-        dataFile.close();
-
-    }*/
-}
 
 
 void printToSD() {
@@ -617,31 +553,13 @@ void readJSON(char* json, uint8_t num) {
         switch (command) {
         case REQ_PARAMS:
             condition[condID].load();
-            if (condID > 0) {
-                condition[condID].regulTemp.consigne = condition[condID].regulTemp.offset + setPointsData.temperature;
-                condition[condID].regulSalinite.consigne = condition[condID].regulSalinite.offset + setPointsData.cond;
-                Serial.print("condition[condID].regulSalinite.consigne:"); Serial.println(condition[condID].regulSalinite.consigne);
-                Serial.print("condition[condID].regulSalinite.offset:"); Serial.println(condition[condID].regulSalinite.offset);
-                Serial.print("setPointsData.cond:"); Serial.println(setPointsData.cond);
-            }
-            else {
-                condition[condID].regulTemp.consigne = setPointsData.temperature;
-            }
+            
             condition[condID].serializeParams(buffer, RTC.getTime(),0);
             Serial.print("SEND PARAMS:"); Serial.println(buffer);
             webSocket.sendTXT(num, buffer);
             break;
         case REQ_DATA:
-            if (condID > 0) {
-                condition[condID].regulTemp.consigne = condition[condID].regulTemp.offset + setPointsData.temperature;
-                condition[condID].regulSalinite.consigne = condition[condID].regulSalinite.offset + setPointsData.cond;
-                Serial.print("condition[condID].regulSalinite.consigne:"); Serial.println(condition[condID].regulSalinite.consigne);
-                Serial.print("condition[condID].regulSalinite.offset:"); Serial.println(condition[condID].regulSalinite.offset);
-                Serial.print("setPointsData.cond:"); Serial.println(setPointsData.cond);
-            }
-            else {
-                condition[condID].regulTemp.consigne = setPointsData.temperature;
-            }
+            
             if(senderID ==4) condition[condID].serializeData(buffer, RTC.getTime(), 0, condID, true);
             else condition[condID].serializeData(buffer, RTC.getTime(), 0, condID, false);
             Serial.print("SEND DATA:"); Serial.println(buffer);
@@ -650,16 +568,7 @@ void readJSON(char* json, uint8_t num) {
         case SEND_PARAMS:
             condition[condID].load();
             condition[condID].deserializeParams(doc);
-            if (condID > 0) {
-                condition[condID].regulTemp.consigne = condition[condID].regulTemp.offset + setPointsData.temperature;
-                condition[condID].regulSalinite.consigne = condition[condID].regulSalinite.offset + setPointsData.cond;
-                Serial.print("condition[condID].regulSalinite.consigne:"); Serial.println(condition[condID].regulSalinite.consigne);
-                Serial.print("condition[condID].regulSalinite.offset:"); Serial.println(condition[condID].regulSalinite.offset);
-                Serial.print("setPointsData.cond:"); Serial.println(setPointsData.cond);
-            }
-            else {
-                condition[condID].regulTemp.consigne = setPointsData.temperature;
-            }
+            
             condition[condID].save();
             
             if (senderID == 4) {
@@ -671,13 +580,6 @@ void readJSON(char* json, uint8_t num) {
         case SEND_DATA:
             condition[condID].load();
             condition[condID].deserializeData(doc);
-            /*if (condID > 0) {
-                condition[condID].regulTemp.consigne = condition[condID].regulTemp.offset + setPointsData.temperature;
-                condition[condID].regulSalinite.consigne = condition[condID].regulSalinite.offset + setPointsData.cond;
-            }
-            else {
-                condition[condID].regulTemp.consigne = setPointsData.temperature;
-            }*/
             condition[condID].serializeParams(buffer, RTC.getTime(), 0);
             Serial.print("SEND PARAMS!!:"); Serial.println(buffer);
             webSocket.sendTXT(num, buffer);

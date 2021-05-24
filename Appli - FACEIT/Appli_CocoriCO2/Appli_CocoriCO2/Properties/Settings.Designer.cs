@@ -49,13 +49,183 @@ namespace Appli_CocoriCO2.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string tideDataFile {
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public string dataLogInterval {
             get {
-                return ((string)(this["tideDataFile"]));
+                return ((string)(this["dataLogInterval"]));
             }
             set {
-                this["tideDataFile"] = value;
+                this["dataLogInterval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string deltaCond_C1_a {
+            get {
+                return ((string)(this["deltaCond_C1_a"]));
+            }
+            set {
+                this["deltaCond_C1_a"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string deltaCond_C1_b {
+            get {
+                return ((string)(this["deltaCond_C1_b"]));
+            }
+            set {
+                this["deltaCond_C1_b"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string deltaCond_C2_a {
+            get {
+                return ((string)(this["deltaCond_C2_a"]));
+            }
+            set {
+                this["deltaCond_C2_a"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string deltaCond_C2_b {
+            get {
+                return ((string)(this["deltaCond_C2_b"]));
+            }
+            set {
+                this["deltaCond_C2_b"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string deltaCond_C3_a {
+            get {
+                return ((string)(this["deltaCond_C3_a"]));
+            }
+            set {
+                this["deltaCond_C3_a"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string deltaCond_C3_b {
+            get {
+                return ((string)(this["deltaCond_C3_b"]));
+            }
+            set {
+                this["deltaCond_C3_b"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/CocoriCO2/FACEIT/")]
+        public string dataFileBasePath {
+            get {
+                return ((string)(this["dataFileBasePath"]));
+            }
+            set {
+                this["dataFileBasePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("cocorico2")]
+        public string ftpUsername {
+            get {
+                return ((string)(this["ftpUsername"]));
+            }
+            set {
+                this["ftpUsername"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C0q2Ch0c@2021")]
+        public string ftpPassword {
+            get {
+                return ((string)(this["ftpPassword"]));
+            }
+            set {
+                this["ftpPassword"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("ftp.obs-vlfr.fr/FACEIT/")]
+        public string ftpDir {
+            get {
+                return ((string)(this["ftpDir"]));
+            }
+            set {
+                this["ftpDir"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:8086/orgs/de9be6257a0a3477/dashboards/077b31f0db0d2000?lower=now" +
+            "%28%29%20-%207d")]
+        public string InfluxDBWebpage {
+            get {
+                return ((string)(this["InfluxDBWebpage"]));
+            }
+            set {
+                this["InfluxDBWebpage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("eUNDgxqrwAFsb6pjOdqGkW-Qr9NxorO5WQamvvgtquXFJgUz1tyG2Ee-G7HhI_IKk9L3JavnAoxrMZ5ev" +
+            "Ls9Ig==")]
+        public string InfluxDBToken {
+            get {
+                return ((string)(this["InfluxDBToken"]));
+            }
+            set {
+                this["InfluxDBToken"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("FACEIT")]
+        public string InfluxDBBucket {
+            get {
+                return ((string)(this["InfluxDBBucket"]));
+            }
+            set {
+                this["InfluxDBBucket"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("CNRS")]
+        public string InfluxDBOrg {
+            get {
+                return ((string)(this["InfluxDBOrg"]));
+            }
+            set {
+                this["InfluxDBOrg"] = value;
             }
         }
     }

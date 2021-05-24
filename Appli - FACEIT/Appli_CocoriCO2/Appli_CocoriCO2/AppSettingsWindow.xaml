@@ -6,16 +6,35 @@
         xmlns:local="clr-namespace:Appli_CocoriCO2"
         xmlns:p="clr-namespace:Appli_CocoriCO2.Properties"
         mc:Ignorable="d"
-        Title="AppSettingsWindow" Height="450" Width="800">
-    <Grid>
+        Title="AppSettingsWindow" Height="780.769" Width="1260.256">
+    <Grid Margin="0,0,74,0">
         <TextBox HorizontalAlignment="Left" Height="23" Margin="155,117,0,0" TextWrapping="Wrap"  Name="tb_MasterIPAdress" Text="{Binding Source={x:Static p:Settings.Default}, Path=MasterIPAddress, Mode=TwoWay}" VerticalAlignment="Top" Width="120"/>
         <Label Content="Master IP Address" HorizontalAlignment="Left" Margin="30,114,0,0" VerticalAlignment="Top"/>
         <Button x:Name="btn_save" Content="Save" Margin="0,0,133,30" Click="btn_save_Click" Height="33" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
         <Button x:Name="btn_Cancel" Content="Cancel" Margin="0,0,31,30" Click="btn_Cancel_Click" Height="33" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
         <TextBox HorizontalAlignment="Left" Height="23" Margin="155,148,0,0" TextWrapping="Wrap"  x:Name="tb_MasterIPAdress_Copy" Text="{Binding dataQueryInterval, Mode=TwoWay, Source={x:Static p:Settings.Default}}" VerticalAlignment="Top" Width="120"/>
         <Label Content="Data Query Interval" HorizontalAlignment="Left" Margin="30,145,0,0" VerticalAlignment="Top"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="155,174,0,0" TextWrapping="Wrap"  x:Name="tb_MasterIPAdress_Copy1" Text="{Binding tideDataFile, Mode=TwoWay, Source={x:Static p:Settings.Default}}" VerticalAlignment="Top" Width="120"/>
-        <Label Content="Tide data file" HorizontalAlignment="Left" Margin="30,171,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Height="23" Margin="155,224,0,0" TextWrapping="Wrap"  x:Name="tb_MasterIPAdress_Copy2" Text="{Binding dataLogInterval, Mode=TwoWay, Source={x:Static p:Settings.Default}}" VerticalAlignment="Top" Width="120"/>
+        <Label Content="Data Log Interval" HorizontalAlignment="Left" Margin="30,221,0,0" VerticalAlignment="Top"/>
+        <Label Content="minutes" HorizontalAlignment="Left" Margin="280,221,0,0" VerticalAlignment="Top"/>
+        <TextBox Height="23" Margin="155,255,-28,0" TextWrapping="Wrap"  x:Name="tb_MasterIPAdress_Copy3" Text="{Binding dataFileBasePath, Mode=TwoWay, Source={x:Static p:Settings.Default}}" VerticalAlignment="Top"/>
+        <Label Content="Data Base Filepath" HorizontalAlignment="Left" Margin="30,252,0,0" VerticalAlignment="Top"/>
+        <TextBox Height="23" Margin="155,362,-28,0" TextWrapping="Wrap"  x:Name="tb_MasterIPAdress_Copy4" Text="{Binding ftpUsername, Mode=TwoWay, Source={x:Static p:Settings.Default}}" VerticalAlignment="Top"/>
+        <Label Content="Username" HorizontalAlignment="Left" Margin="30,359,0,0" VerticalAlignment="Top"/>
+        <TextBox Height="23" Margin="155,388,-28,0" TextWrapping="Wrap"  x:Name="tb_MasterIPAdress_Copy5" Text="{Binding ftpPassword, Mode=TwoWay, Source={x:Static p:Settings.Default}}" VerticalAlignment="Top"/>
+        <Label Content="Password" HorizontalAlignment="Left" Margin="30,385,0,0" VerticalAlignment="Top"/>
+        <TextBox Height="23" Margin="155,414,-28,0" TextWrapping="Wrap"  x:Name="tb_MasterIPAdress_Copy6" Text="{Binding ftpDir, Mode=TwoWay, Source={x:Static p:Settings.Default}}" VerticalAlignment="Top"/>
+        <Label Content="FTP Directory path" HorizontalAlignment="Left" Margin="30,411,0,0" VerticalAlignment="Top"/>
+        <Label Content="FTP" HorizontalAlignment="Left" Margin="30,328,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+        <TextBox Height="23" Margin="155,513,-28,0" TextWrapping="Wrap"  x:Name="tb_MasterIPAdress_Copy7" Text="{Binding InfluxDBWebpage, Mode=TwoWay, Source={x:Static p:Settings.Default}}" VerticalAlignment="Top"/>
+        <Label Content="Webpage" HorizontalAlignment="Left" Margin="30,510,0,0" VerticalAlignment="Top"/>
+        <TextBox Height="23" Margin="155,539,-28,0" TextWrapping="Wrap"  x:Name="tb_MasterIPAdress_Copy8" Text="{Binding InfluxDBToken, Mode=TwoWay, Source={x:Static p:Settings.Default}}" VerticalAlignment="Top"/>
+        <Label Content="Token" HorizontalAlignment="Left" Margin="30,536,0,0" VerticalAlignment="Top"/>
+        <TextBox Height="23" Margin="155,565,-28,0" TextWrapping="Wrap"  x:Name="tb_MasterIPAdress_Copy9" Text="{Binding InfluxDBBucket, Mode=TwoWay, Source={x:Static p:Settings.Default}}" VerticalAlignment="Top"/>
+        <Label Content="Bucket" HorizontalAlignment="Left" Margin="30,562,0,0" VerticalAlignment="Top"/>
+        <Label Content="InfluxDB" HorizontalAlignment="Left" Margin="30,479,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+        <TextBox Height="23" Margin="155,590,-28,0" TextWrapping="Wrap"  x:Name="tb_MasterIPAdress_Copy10" Text="{Binding InfluxDBOrg, Mode=TwoWay, Source={x:Static p:Settings.Default}}" VerticalAlignment="Top"/>
+        <Label Content="Org" HorizontalAlignment="Left" Margin="30,587,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

@@ -23,9 +23,23 @@ using System.ComponentModel;
 using System.Globalization;
 using LiveCharts;
 using LiveCharts.Configurations;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace Appli_CocoriCO2
 {
+
+    public class InSituData
+    {
+
+        [JsonProperty(Required = Required.Default)]
+        public IList<IList<string>> data { get; set; }
+
+        public DateTime time { get; set; }
+        public double salinite { get; set; }
+        public double temperature { get; set; }
+    }
+
     public class MasterData
     {
 
@@ -115,9 +129,10 @@ namespace Appli_CocoriCO2
         public ObservableCollection<Condition> conditions;
         public ObservableCollection<Condition> conditionData;
         public MasterData masterData = new MasterData();
+        public InSituData inSituData = new InSituData();
+        
 
         //public List<Condition> conditionData;
-        public MonitoringWindow monitoringWindow;
         public ExpSettingsWindow expSettingsWindow;
         public ComDebugWindow comDebugWindow;
         public CultureInfo ci;
@@ -126,6 +141,8 @@ namespace Appli_CocoriCO2
         bool autoReco;
         public int step;
 
+        CancellationTokenSource cancelToken = new CancellationTokenSource();
+
 
         public string[] Labels = new[] {"0"};
         public MainWindow()
@@ -133,13 +150,10 @@ namespace Appli_CocoriCO2
             InitializeComponent();
             var cts = new CancellationTokenSource();
 
-            
-
-            InitializeAsync();
             autoReco = false;
             conditions = new ObservableCollection<Condition>();
             conditionData = new ObservableCollection<Condition>();
-            for(int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 Condition c = new Condition();
                 c.condID = i;
@@ -150,11 +164,16 @@ namespace Appli_CocoriCO2
                 conditions.Add(c);
             }
 
-            
+
 
             expSettingsWindow = new ExpSettingsWindow();
             comDebugWindow = new ComDebugWindow();
-            monitoringWindow = new MonitoringWindow();
+
+            
+
+            InitializeAsync();
+            InitializeAsyncSendParams();
+            
 
             comDebugWindow.lv_data.ItemsSource = conditionData;
             ci = new CultureInfo("en-US");
@@ -166,25 +185,48 @@ namespace Appli_CocoriCO2
             CultureInfo.DefaultThreadCurrentCulture = ci;
             CultureInfo.DefaultThreadCurrentUICulture = ci;
 
-
-
+            getInSituData();
         }
 
 
-
-
-
-        private void saveCondtionsData(Condition cond)
+        private async void getInSituData()
         {
-            string objjsonData = JsonConvert.SerializeObject(cond);
-            System.IO.File.WriteAllText(@"D:\path.txt", objjsonData);
+            var client = new HttpClient();
+
+            //https://dashboard.awi.de/data-xxl/rest/data?beginDate=2020-10-01T00:01:00&endDate=2021-10-01T00:01:00&format=application/json&aggregate=DAY&sensors=station:svluwobs:fb_731101:sbe45_awi_0403:salinity&sensors=station:svluwobs:fb_731101:sbe45_awi_0403:temperature
+
+            client.BaseAddress = new Uri("https://dashboard.awi.de");
+            client.DefaultRequestHeaders.Add("User-Agent", "C# console program");
+            client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
+
+            string fromDate = DateTime.Now.AddDays(-1).ToString("yyyy-MM-ddTHH:mm:ss");
+            string toDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
+
+            var url = "data-xxl/rest/data?beginDate="+fromDate+"&endDate="+toDate+"&format=application/json&aggregate=HOUR&sensors=station:svluwobs:fb_731101:sbe45_awi_0403:salinity&sensors=station:svluwobs:fb_731101:sbe45_awi_0403:temperature";
+            HttpResponseMessage response = await client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            var resp = await response.Content.ReadAsStringAsync();
+
+            inSituData = JsonConvert.DeserializeObject<InSituData>(resp);
+            IList<string> d = inSituData.data.Last<IList<string>>();
+            inSituData.time = DateTime.Parse(d.ElementAt<string>(0).ToString());
+            
+            double s, t;
+
+            double.TryParse(d.ElementAt<string>(1).ToString(), out s);
+            double.TryParse(d.ElementAt<string>(2).ToString(), out t);
+
+            inSituData.salinite = s;
+            inSituData.temperature = t;
+
+            label_IS_Time.Content = "Time: " + inSituData.time.ToString("yyyy-MM-dd HH:mm:ss");
+            label_IS_Temp.Content = string.Format(ci, "Temperature: {0:0.00}°C", inSituData.temperature);
+            label_IS_Salinity.Content = string.Format(ci, "Salinity: {0:0.00}g/kg", inSituData.salinite);
+            //data.ForEach(Console.WriteLine);
         }
 
-        private void loadCondtionsData()
-        {
-            string json = System.IO.File.ReadAllText(@"D:\path.txt");
-            conditions = JsonConvert.DeserializeObject <ObservableCollection<Condition>>(json);
-        }
+
 
         
         private static async Task Connect(ClientWebSocket ws, TextBox tb)
@@ -229,7 +271,7 @@ namespace Appli_CocoriCO2
 
         public void DisplayData(int command)
         {
-            label_time.Content = DateTime.Now;
+            label_time.Content = "Time: " +DateTime.Now.ToUniversalTime().ToString("dd/MM/yyyy hh:mm")+ " UTC";
             
             //expSettingsWindow.tb_pH_setPoint.Text = conditions[0].regulpH.consigne.ToString();
             if (command == 2)//PARAMS
@@ -238,104 +280,104 @@ namespace Appli_CocoriCO2
             }
             else if (command == 3)//DATA
             {
-                label_C0_PressionEA_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[0].Meso[0].salSortiePID_pc);
-                label_C0_PressionEF_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[0].Meso[1].salSortiePID_pc);
-                label_C0_PressionEC_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[0].Meso[2].salSortiePID_pc);
-                label_C0M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[0].Meso[0].tempSortiePID_pc);
-                label_C0M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[0].Meso[1].tempSortiePID_pc);
-                label_C0M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[0].Meso[2].tempSortiePID_pc);
+                label_C0_PressionEA_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[0].Meso[0].salSortiePID_pc);
+                label_C0_PressionEF_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[0].Meso[1].salSortiePID_pc);
+                label_C0_PressionEC_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[0].Meso[2].salSortiePID_pc);
+                label_C0M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[0].Meso[0].tempSortiePID_pc);
+                label_C0M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[0].Meso[1].tempSortiePID_pc);
+                label_C0M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[0].Meso[2].tempSortiePID_pc);
 
                 label_C0_pressionEA_setpoint.Content = string.Format(ci, "Pressure setpoint: {0:0.000} bars", conditions[0].regulSalinite.consigne);
                 label_C0_pressionEF_setpoint.Content = string.Format(ci, "Pressure setpoint: {0:0.000} bars", conditions[0].regulSalinite.consigne);
                 label_C0_pressionEC_setpoint.Content = string.Format(ci, "Pressure setpoint: {0:0.000} bars", conditions[0].regulSalinite.consigne);
 
-                label_C0_Temp_setpoint.Content = string.Format(ci, "T°C: {0:0.00}", conditions[0].regulTemp.consigne);
+                label_C0_Temp_setpoint.Content = string.Format(ci, "T°C: {0:0.00} °C", conditions[0].regulTemp.consigne);
 
-                label_C1_Cond_setpoint.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[1].regulSalinite.consigne);
-                label_C1M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[1].Meso[0].salSortiePID_pc);
-                label_C1M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[1].Meso[1].salSortiePID_pc);
-                label_C1M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[1].Meso[2].salSortiePID_pc);
-                label_C1_Temp_setpoint.Content = string.Format(ci, "T°C: {0:0.00}", conditions[1].regulTemp.consigne);
-                label_C1M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[1].Meso[0].tempSortiePID_pc);
-                label_C1M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[1].Meso[1].tempSortiePID_pc);
-                label_C1M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[1].Meso[2].tempSortiePID_pc);
+                label_C1_Cond_setpoint.Content = string.Format(ci, "Salinity: {0:0.00} g/kg", conditions[1].regulSalinite.consigne);
+                label_C1M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[1].Meso[0].salSortiePID_pc);
+                label_C1M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[1].Meso[1].salSortiePID_pc);
+                label_C1M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[1].Meso[2].salSortiePID_pc);
+                label_C1_Temp_setpoint.Content = string.Format(ci, "T°C: {0:0.00} °C", conditions[1].regulTemp.consigne);
+                label_C1M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[1].Meso[0].tempSortiePID_pc);
+                label_C1M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[1].Meso[1].tempSortiePID_pc);
+                label_C1M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[1].Meso[2].tempSortiePID_pc);
 
-                label_C2_Cond_setpoint.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[2].regulSalinite.consigne);
-                label_C2M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[2].Meso[0].salSortiePID_pc);
-                label_C2M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[2].Meso[1].salSortiePID_pc);
-                label_C2M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[2].Meso[2].salSortiePID_pc);
-                label_C2_Temp_setpoint.Content = string.Format(ci, "T°C: {0:0.00}", conditions[2].regulTemp.consigne);
-                label_C2M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[2].Meso[0].tempSortiePID_pc);
-                label_C2M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[2].Meso[1].tempSortiePID_pc);
-                label_C2M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[2].Meso[2].tempSortiePID_pc);
+                label_C2_Cond_setpoint.Content = string.Format(ci, "Salinity: {0:0.00} g/kg", conditions[2].regulSalinite.consigne);
+                label_C2M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[2].Meso[0].salSortiePID_pc);
+                label_C2M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[2].Meso[1].salSortiePID_pc);
+                label_C2M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[2].Meso[2].salSortiePID_pc);
+                label_C2_Temp_setpoint.Content = string.Format(ci, "T°C: {0:0.00} °C", conditions[2].regulTemp.consigne);
+                label_C2M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[2].Meso[0].tempSortiePID_pc);
+                label_C2M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[2].Meso[1].tempSortiePID_pc);
+                label_C2M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[2].Meso[2].tempSortiePID_pc);
 
-                label_C3_Cond_setpoint.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[3].regulSalinite.consigne);
-                label_C3M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[3].Meso[0].salSortiePID_pc);
-                label_C3M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[3].Meso[1].salSortiePID_pc);
-                label_C3M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[3].Meso[2].salSortiePID_pc);
-                label_C3_Temp_setpoint.Content = string.Format(ci, "T°C: {0:0.00}", conditions[3].regulTemp.consigne);
-                label_C3M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[3].Meso[0].tempSortiePID_pc);
-                label_C3M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[3].Meso[1].tempSortiePID_pc);
-                label_C3M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[3].Meso[2].tempSortiePID_pc);
+                label_C3_Cond_setpoint.Content = string.Format(ci, "Salinity: {0:0.00} g/kg", conditions[3].regulSalinite.consigne);
+                label_C3M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[3].Meso[0].salSortiePID_pc);
+                label_C3M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[3].Meso[1].salSortiePID_pc);
+                label_C3M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[3].Meso[2].salSortiePID_pc);
+                label_C3_Temp_setpoint.Content = string.Format(ci, "T°C: {0:0.00} °C", conditions[3].regulTemp.consigne);
+                label_C3M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[3].Meso[0].tempSortiePID_pc);
+                label_C3M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[3].Meso[1].tempSortiePID_pc);
+                label_C3M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[3].Meso[2].tempSortiePID_pc);
 
-                label_C0M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00}l/s", conditions[0].Meso[0].debit);
-                label_C0M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00}l/s", conditions[0].Meso[1].debit);
-                label_C0M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00}l/s", conditions[0].Meso[2].debit);
-                label_C0M0_O2.Content = string.Format(ci, "02: {0:0.00}mg/L", conditions[0].Meso[0].oxy);
-                label_C0M1_O2.Content = string.Format(ci, "02: {0:0.00}mg/L", conditions[0].Meso[1].oxy);
-                label_C0M2_O2.Content = string.Format(ci, "02: {0:0.00}mg/L", conditions[0].Meso[2].oxy);
-                label_C0M0_Cond.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[0].Meso[0].cond);
-                label_C0M1_Cond.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[0].Meso[1].cond);
-                label_C0M2_Cond.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[0].Meso[2].cond);
-                label_C0M0_Temp.Content = string.Format(ci, "T°C: {0:0.00}°C", conditions[0].Meso[0].temperature);
-                label_C0M1_Temp.Content = string.Format(ci, "T°C: {0:0.00}°C", conditions[0].Meso[1].temperature);
-                label_C0M2_Temp.Content = string.Format(ci, "T°C: {0:0.00}°C", conditions[0].Meso[2].temperature);
+                label_C0M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/s", conditions[0].Meso[0].debit);
+                label_C0M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/s", conditions[0].Meso[1].debit);
+                label_C0M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/s", conditions[0].Meso[2].debit);
+                label_C0M0_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[0].Meso[0].oxy);
+                label_C0M1_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[0].Meso[1].oxy);
+                label_C0M2_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[0].Meso[2].oxy);
+                label_C0M0_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[0].Meso[0].cond);
+                label_C0M1_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[0].Meso[1].cond);
+                label_C0M2_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[0].Meso[2].cond);
+                label_C0M0_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[0].Meso[0].temperature);
+                label_C0M1_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[0].Meso[1].temperature);
+                label_C0M2_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[0].Meso[2].temperature);
 
-                label_C1M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00}l/s", conditions[1].Meso[0].debit);
-                label_C1M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00}l/s", conditions[1].Meso[1].debit);
-                label_C1M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00}l/s", conditions[1].Meso[2].debit);
-                label_C1M0_O2.Content = string.Format(ci, "02: {0:0.00}mg/L", conditions[1].Meso[0].oxy);
-                label_C1M1_O2.Content = string.Format(ci, "02: {0:0.00}mg/L", conditions[1].Meso[1].oxy);
-                label_C1M2_O2.Content = string.Format(ci, "02: {0:0.00}mg/L", conditions[1].Meso[2].oxy);
-                label_C1M0_Cond.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[1].Meso[0].cond);
-                label_C1M1_Cond.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[1].Meso[1].cond);
-                label_C1M2_Cond.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[1].Meso[2].cond);
-                label_C1M0_Temp.Content = string.Format(ci, "T°C: {0:0.00}°C", conditions[1].Meso[0].temperature);
-                label_C1M1_Temp.Content = string.Format(ci, "T°C: {0:0.00}°C", conditions[1].Meso[1].temperature);
-                label_C1M2_Temp.Content = string.Format(ci, "T°C: {0:0.00}°C", conditions[1].Meso[2].temperature);
+                label_C1M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/s", conditions[1].Meso[0].debit);
+                label_C1M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/s", conditions[1].Meso[1].debit);
+                label_C1M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/s", conditions[1].Meso[2].debit);
+                label_C1M0_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[1].Meso[0].oxy);
+                label_C1M1_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[1].Meso[1].oxy);
+                label_C1M2_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[1].Meso[2].oxy);
+                label_C1M0_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[1].Meso[0].cond);
+                label_C1M1_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[1].Meso[1].cond);
+                label_C1M2_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[1].Meso[2].cond);
+                label_C1M0_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[1].Meso[0].temperature);
+                label_C1M1_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[1].Meso[1].temperature);
+                label_C1M2_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[1].Meso[2].temperature);
 
-                label_C2M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00}l/s", conditions[2].Meso[0].debit);
-                label_C2M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00}l/s", conditions[2].Meso[1].debit);
-                label_C2M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00}l/s", conditions[2].Meso[2].debit);
-                label_C2M0_O2.Content = string.Format(ci, "02: {0:0.00}mg/L", conditions[2].Meso[0].oxy);
-                label_C2M1_O2.Content = string.Format(ci, "02: {0:0.00}mg/L", conditions[2].Meso[1].oxy);
-                label_C2M2_O2.Content = string.Format(ci, "02: {0:0.00}mg/L", conditions[2].Meso[2].oxy);
-                label_C2M0_Cond.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[2].Meso[0].cond);
-                label_C2M1_Cond.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[2].Meso[1].cond);
-                label_C2M2_Cond.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[2].Meso[2].cond);
-                label_C2M0_Temp.Content = string.Format(ci, "T°C: {0:0.00}°C", conditions[2].Meso[0].temperature);
-                label_C2M1_Temp.Content = string.Format(ci, "T°C: {0:0.00}°C", conditions[2].Meso[1].temperature);
-                label_C2M2_Temp.Content = string.Format(ci, "T°C: {0:0.00}°C", conditions[2].Meso[2].temperature);
+                label_C2M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/s", conditions[2].Meso[0].debit);
+                label_C2M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/s", conditions[2].Meso[1].debit);
+                label_C2M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/s", conditions[2].Meso[2].debit);
+                label_C2M0_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[2].Meso[0].oxy);
+                label_C2M1_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[2].Meso[1].oxy);
+                label_C2M2_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[2].Meso[2].oxy);
+                label_C2M0_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[2].Meso[0].cond);
+                label_C2M1_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[2].Meso[1].cond);
+                label_C2M2_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[2].Meso[2].cond);
+                label_C2M0_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[2].Meso[0].temperature);
+                label_C2M1_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[2].Meso[1].temperature);
+                label_C2M2_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[2].Meso[2].temperature);
 
-                label_C3M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00}l/s", conditions[3].Meso[0].debit);
-                label_C3M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00}l/s", conditions[3].Meso[1].debit);
-                label_C3M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00}l/s", conditions[3].Meso[2].debit);
-                label_C3M0_O2.Content = string.Format(ci, "02: {0:0.00}mg/L", conditions[3].Meso[0].oxy);
-                label_C3M1_O2.Content = string.Format(ci, "02: {0:0.00}mg/L", conditions[3].Meso[1].oxy);
-                label_C3M2_O2.Content = string.Format(ci, "02: {0:0.00}mg/L", conditions[3].Meso[2].oxy);
-                label_C3M0_Cond.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[3].Meso[0].cond);
-                label_C3M1_Cond.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[3].Meso[1].cond);
-                label_C3M2_Cond.Content = string.Format(ci, "Cond: {0:0.00}µS/cm", conditions[3].Meso[2].cond);
-                label_C3M0_Temp.Content = string.Format(ci, "T°C: {0:0.00}°C", conditions[3].Meso[0].temperature);
-                label_C3M1_Temp.Content = string.Format(ci, "T°C: {0:0.00}°C", conditions[3].Meso[1].temperature);
-                label_C3M2_Temp.Content = string.Format(ci, "T°C: {0:0.00}°C", conditions[3].Meso[2].temperature);
+                label_C3M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/s", conditions[3].Meso[0].debit);
+                label_C3M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/s", conditions[3].Meso[1].debit);
+                label_C3M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/s", conditions[3].Meso[2].debit);
+                label_C3M0_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[3].Meso[0].oxy);
+                label_C3M1_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[3].Meso[1].oxy);
+                label_C3M2_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[3].Meso[2].oxy);
+                label_C3M0_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[3].Meso[0].cond);
+                label_C3M1_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[3].Meso[1].cond);
+                label_C3M2_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[3].Meso[2].cond);
+                label_C3M0_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[3].Meso[0].temperature);
+                label_C3M1_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[3].Meso[1].temperature);
+                label_C3M2_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[3].Meso[2].temperature);
             }
             else if (command == 6)//MASTER DATA
             {
                 //TODO
-                label_C0_debitEA.Content = string.Format(ci, "Flowrate: \t{0:0.00}l/s", masterData.debitEA);
-                label_C0_debitEF.Content = string.Format(ci, "Flowrate: \t{0:0.00}l/s", masterData.debitEF);
-                label_C0_debitEC.Content = string.Format(ci, "Flowrate: \t{0:0.00}l/s", masterData.debitEC);
+                label_C0_debitEA.Content = string.Format(ci, "Flowrate: \t{0:0.00} l/s", masterData.debitEA);
+                label_C0_debitEF.Content = string.Format(ci, "Flowrate: \t{0:0.00} l/s", masterData.debitEF);
+                label_C0_debitEC.Content = string.Format(ci, "Flowrate: \t{0:0.00} l/s", masterData.debitEC);
                 label_C0_pressionEA_measure.Content = string.Format(ci, "Pressure measure: {0:0.000} bars", masterData.pressionEA);
                 label_C0_pressionEF_measure.Content = string.Format(ci, "Pressure measure: {0:0.000} bars", masterData.pressionEF);
                 label_C0_pressionEC_measure.Content = string.Format(ci, "Pressure measure: {0:0.000} bars", masterData.pressionEC);
@@ -346,30 +388,31 @@ namespace Appli_CocoriCO2
 
         private void checkConnection()
         {
+            
             switch (ws.State)
             {
                 case WebSocketState.Open:
                     Connect_btn.Header = "Disconnect";
                     Connect_btn.IsEnabled = true;
+                    statusLabel.Text = "Connection Status: Connected";
                     break;
                 case WebSocketState.Closed:
                 case WebSocketState.Aborted:
                 case WebSocketState.None:
                     Connect_btn.Header = "Connect";
                     Connect_btn.IsEnabled = true;
+                    statusLabel.Text = "Connection Status: Disconnected";
                     break;
                 case WebSocketState.Connecting:
                     Connect_btn.Header = "Connecting";
                     Connect_btn.IsEnabled = false;
+                    statusLabel.Text = "Connection Status: Connecting";
                     break;
             }
-            
-            statusLabel.Text = "Connection Status: " + ws.State.ToString();
 
             string msg = "";
-            if (conditions[0].regulSalinite.consigne == 0) msg = "{command:0,condID:0, senderID:4}";
-            else
-            {
+
+            var Timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
                 switch (step)
                 {
                     case 0:
@@ -385,12 +428,11 @@ namespace Appli_CocoriCO2
                         msg = "{command:1,condID:3, senderID:4}";
                         break;
                     case 4:
-                        var Timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
                         msg = "{command:5,condID:0, senderID:4, time:" + Timestamp + "}";
                         break;
                 }
                 if (step < 4) step++; else step = 0;
-            }
+            
             
 
             comDebugWindow.tb1.Text = msg;
@@ -407,16 +449,43 @@ namespace Appli_CocoriCO2
             
         }
 
+        private void sendParams()
+        {
+            string msg;
+
+            for (int i = 0; i < 4; i++)
+            {
+                if (conditions[i].regulTemp.Kp == 0) msg = "{command:0,condID:"+i+", senderID:4}";
+                else
+                {
+                    expSettingsWindow.calculConsignes(i);
+                    msg = expSettingsWindow.buildJsonParams(conditions[i]);
+                    comDebugWindow.tb1.Text = msg;
+                }
+                
+
+                if (ws.State == WebSocketState.Open)
+                {
+                    Task<string> t2 = Send(ws, msg, comDebugWindow.tb2);
+                    t2.Wait(50);
+                }
+                else
+                {
+                    Connect();
+                }
+            }
+        }
+
         private void Connect()
         {
             
-            if (ws.State == WebSocketState.None)
+            if (ws.State != WebSocketState.Open)
             {
                 Task t = Connect(ws, comDebugWindow.tb2);
                 t.Wait(50);
                 Connect_btn.Header = "Connecting";
                 Connect_btn.IsEnabled = false;
-                statusLabel.Text = "Connection Status: " + ws.State.ToString();
+                
             }
         }
 
@@ -432,14 +501,14 @@ namespace Appli_CocoriCO2
                 await Task.Delay(dueTime, token);
 
             // Repeat this loop until cancelled.
-            while (!token.IsCancellationRequested)
+            while (true)
             {
                 // Call our onTick function.
                 onTick?.Invoke();
 
                 // Wait to repeat again.
                 if (interval > TimeSpan.Zero)
-                    await Task.Delay(interval, token);
+                    await Task.Delay(interval, CancellationToken.None);
             }
         }
 
@@ -452,6 +521,17 @@ namespace Appli_CocoriCO2
 
             // TODO: Add a CancellationTokenSource and supply the token here instead of None.
             await RunPeriodicAsync(checkConnection, dueTime, interval, CancellationToken.None);
+        }
+
+        private async Task InitializeAsyncSendParams()
+        {
+            int t;
+            //Int32.TryParse(Properties.Settings.Default["dataQueryInterval"].ToString(), out t);
+            var dueTime = TimeSpan.FromSeconds(5);
+            var interval = TimeSpan.FromSeconds(5);
+
+            // TODO: Add a CancellationTokenSource and supply the token here instead of None.
+            await RunPeriodicAsync(sendParams, dueTime, interval, CancellationToken.None);
         }
 
         private void Connect_Click(object sender, RoutedEventArgs e)
@@ -494,7 +574,9 @@ namespace Appli_CocoriCO2
 
         private void ExpSettings_Click(object sender, RoutedEventArgs e)
         {
+            for (int i = 0; i < 4; i++) expSettingsWindow.load(i);
             expSettingsWindow.Show();
+            expSettingsWindow.Focus();
         }
 
         private void Calibrate_btn_Click(object sender, RoutedEventArgs e)
@@ -517,6 +599,7 @@ namespace Appli_CocoriCO2
         private void ComDebug_Click(object sender, RoutedEventArgs e)
         {
             comDebugWindow.Show();
+            comDebugWindow.Focus();
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -524,7 +607,6 @@ namespace Appli_CocoriCO2
             Properties.Settings.Default.Save();
             comDebugWindow.Close();
             expSettingsWindow.Close();
-            monitoringWindow.Close();
             System.Windows.Application.Current.Shutdown();
         }
 
@@ -540,7 +622,7 @@ namespace Appli_CocoriCO2
 
         private void Monitoring_btn_Click(object sender, RoutedEventArgs e)
         {
-            monitoringWindow.Show();
+            System.Diagnostics.Process.Start(Properties.Settings.Default["InfluxDBWebpage"].ToString());
         }
     }
 }
