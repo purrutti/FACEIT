@@ -15,7 +15,7 @@
 #include <WebSocketsClient.h>
 #include <RTC.h>
 
-const uint8_t CONDID = 1;
+const uint8_t CONDID = 3;
 
 // Enter a MAC address for your controller below.
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
@@ -97,7 +97,7 @@ int salOutputLimit = 100;
 
 WebSocketsClient webSocket;
 
-char buffer[bufferSize];
+
 
 PID pid[6];
 
@@ -243,7 +243,8 @@ void loop() {
 
 void sendData() {
     if (elapsed(&tempoSendValues.debut, tempoSendValues.interval)) {
-        StaticJsonDocument<512> doc;
+        StaticJsonDocument<jsonDocSize> doc;
+        char buffer[bufferSize];
         Serial.println("SEND DATA");
         condition.serializeData(buffer, RTC.getTime(),CONDID, CONDID,false,doc);
         Serial.println(buffer);
@@ -476,8 +477,9 @@ void load(int address) {
 
 
 void readJSON(char* json) {
-    StaticJsonDocument<512> doc;
+    StaticJsonDocument<jsonDocSize> doc;
     deserializeJson(doc, json);
+    char buffer[bufferSize];
 
 
     uint8_t command = doc["command"];

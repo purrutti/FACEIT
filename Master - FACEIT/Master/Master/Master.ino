@@ -99,7 +99,6 @@ bool pH = true;
 
 bool toggleCO2Valve = false;
 
-char buffer[bufferSize];
 uint8_t AppSocketId = -1;
 
 
@@ -282,9 +281,6 @@ void setup() {
 
     calib.calibEnCours = false;
     calib.calibRequested = false;
-    condition[2].condID = 2;
-
-    save(2);
 }
 
 
@@ -562,6 +558,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t lenght)
 
 void readJSON(char* json, uint8_t num) {
     StaticJsonDocument<jsonDocSize> doc;
+    char buffer[bufferSize];
     Serial.print("payload received:"); Serial.println(json);
     deserializeJson(doc, json);
 
