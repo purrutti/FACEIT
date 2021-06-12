@@ -120,8 +120,8 @@ namespace Appli_CocoriCO2
                 }
                 else if (c.command == 3 && (c.Meso != null))
                 {
-                    MW.conditions[c.condID].regulSalinite.consigne = c.regulSalinite.consigne;
-                    MW.conditions[c.condID].regulTemp.consigne = c.regulTemp.consigne;
+                    //MW.conditions[c.condID].regulSalinite.consigne = c.regulSalinite.consigne;
+                    //MW.conditions[c.condID].regulTemp.consigne = c.regulTemp.consigne;
                     for (int i = 0; i < 3; i++) MW.conditions[c.condID].Meso[i] = c.Meso[i];
                 }
                 else if (c.command == 6)
@@ -148,15 +148,25 @@ namespace Appli_CocoriCO2
             if (c.lastUpdated != lastFileWrite)
             {
                 DateTime dt = DateTime.Now;
-                string filePath = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.ToString("yyyy_MM_dd")+".csv"; 
+                string filePath = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.ToString("yyyy_MM_dd")+".csv";
+                filePath = filePath.Replace('\\', '/');
 
                 saveToFile(filePath, dt);
                 //if (c.lastUpdated.Day != lastFileWrite.Day) ftpTransfer(filePath);
-                if (c.lastUpdated.Minute != lastFileWrite.Minute)// POur tester
+                if (c.lastUpdated.Hour != lastFileWrite.Hour)// POur tester
                 {
-                    ftpTransfer(filePath);
+                    if (c.lastUpdated.Hour == 0)
+                    {
+                        string fp = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.AddDays(-1).ToString("yyyy_MM_dd") + ".csv";
+                        ftpTransfer(fp);
+                    }
+                    else
+                    {
+                        ftpTransfer(filePath);
+                    }
                     lastFileWrite = c.lastUpdated;
                 }
+                MW.conditionData.Clear();
             }
         }
 

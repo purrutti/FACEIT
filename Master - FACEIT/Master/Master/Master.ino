@@ -47,7 +47,11 @@ const byte PIN_V2V_M2 = 7;
 // Newer Ethernet shields have a MAC address printed on a sticker on the shield
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xEA };
 // Set the static IP address to use if the DHCP fails to assign
-IPAddress ip(192, 168, 1, 1);
+//IPAddress ip(192, 168, 1, 1);
+IPAddress ip(172, 16, 253, 10);
+
+
+
 
 
 WebSocketsServer webSocket = WebSocketsServer(81);
@@ -91,13 +95,15 @@ typedef struct SetPointsData {
 }SetPointsData;
 SetPointsData setPointsData{ 0.55, 10.33 };
 
-bool calib = false;
 bool pH = true;
 
 bool toggleCO2Valve = false;
 
-char buffer[800];
+char buffer[bufferSize];
 uint8_t AppSocketId = -1;
+
+
+int state = 0;
 
 
 enum {
@@ -108,7 +114,8 @@ enum {
     CALIBRATE_SENSOR = 4,
     REQ_MASTER_DATA = 5,
     SEND_MASTER_DATA = 6,
-    SEND_TIME =7
+    SEND_TIME =7,
+    REQ_CALIBRATION_PARAMS = 8
 };
 
 Condition condition[4];
@@ -124,6 +131,18 @@ typedef struct MasterData {
 }MasterData;
 
 MasterData masterData;
+
+
+typedef struct Calibration {
+    int mesoID;
+    int sensorID;
+    int calibParam;
+    float value;
+    bool calibEnCours;
+    bool calibRequested;
+}Calibration;
+
+Calibration calib;
 
 void save(int startAddress) {
     int address = startAddress;
@@ -223,18 +242,18 @@ void setup() {
 
     for (int i = 0; i < 3; i++) {
         pid[i] = PID((double*)&condition[0].Meso[i].temperature, &condition[0].Meso[i].tempSortiePID, &condition[0].regulTemp.consigne, condition[0].regulTemp.Kp, condition[0].regulTemp.Ki, condition[0].regulTemp.Kd, DIRECT);
-        pid[i].SetOutputLimits(0, 255);
+        pid[i].SetOutputLimits(50, 255);
         pid[i].SetMode(AUTOMATIC);
     }
 
     pid[3] = PID((double*)&masterData.pressionEA, &condition[0].Meso[0].salSortiePID, &condition[0].regulSalinite.consigne, condition[0].regulSalinite.Kp, condition[0].regulSalinite.Ki, condition[0].regulSalinite.Kd, DIRECT);
     pid[4] = PID((double*)&masterData.pressionEF, &condition[0].Meso[1].salSortiePID, &condition[0].regulSalinite.consigne, condition[0].regulSalinite.Kp, condition[0].regulSalinite.Ki, condition[0].regulSalinite.Kd, DIRECT);
     pid[5] = PID((double*)&masterData.pressionEC, &condition[0].Meso[2].salSortiePID, &condition[0].regulSalinite.consigne, condition[0].regulSalinite.Kp, condition[0].regulSalinite.Ki, condition[0].regulSalinite.Kd, DIRECT);
-    pid[3].SetOutputLimits(0, 255);
+    pid[3].SetOutputLimits(50, 255);
     pid[3].SetMode(AUTOMATIC);
-    pid[4].SetOutputLimits(0, 255);
+    pid[4].SetOutputLimits(50, 255);
     pid[4].SetMode(AUTOMATIC);
-    pid[5].SetOutputLimits(0, 255);
+    pid[5].SetOutputLimits(50, 255);
     pid[5].SetMode(AUTOMATIC);
 
     
@@ -260,14 +279,21 @@ void setup() {
     Serial.println(F("SD BEGIN"));
     SD.begin(53);
     Serial.println(F("end setup"));
+
+    calib.calibEnCours = false;
+    calib.calibRequested = false;
+    condition[2].condID = 2;
+
+    save(2);
 }
+
 
 void loop() {
     RTC.read();
-    //if(!calib) requestSensors();
-    //else calibration();
-    //requestAllStatus();
+    
     readMBSensors();
+
+
     webSocket.loop();
 
     if (elapsed(&tempoRegul.debut, tempoRegul.interval)) {
@@ -327,15 +353,16 @@ float readFlow(int lissage, uint8_t pinDebitmetre, double debit) {
 
     int ana = analogRead(pinDebitmetre); // 0-1023 value corresponding to 0-5 V corresponding to 0-20 mA
     int mA = map(ana, 0, 1023, 0, 2000); //map to milli amps with 2 extra digits
+    int d = map(mA, 400, 2000, 0, 1000); //map to l/mn with 2 extra digits
     double ancientDebit = debit;
-    debit = (0.625 * (mA - 400)) / 100.0; // flowrate in l/mn
-    debit = (lissage * debit + (100.0 - lissage) * ancientDebit) / 100.0;
+    //debit = (0.625 * (mA - 400)) / 100.0; // flowrate in l/mn
+    debit = (lissage * d + (100.0 - lissage) * ancientDebit) / 100.0;
     return debit;
 }
 
 float readPressure(int lissage, uint8_t pin, double pression) {
 
-    int ana = analogRead(pin); // 0-1023 value corresponding to 0-5 V corresponding to 0-20 mA
+    int ana = analogRead(pin); // 0-1023 value corresponding to 0-10 V corresponding to 0-20 mA
     int mA = map(ana, 0, 1023, 0, 2000); //map to milli amps with 2 extra digits
     int mbars = map(mA, 400, 2000, 0, 4000); //map to milli amps with 2 extra digits
     double anciennePression = pression;
@@ -424,14 +451,15 @@ void setPIDparams() {
 
     for (int i = 0; i < 3; i++) {
         pid[i].SetTunings(condition[0].regulTemp.Kp, condition[0].regulTemp.Ki, condition[0].regulTemp.Kd);
-        pid[i].SetOutputLimits(0, 255);
+        pid[i].SetControllerDirection(DIRECT);
+        pid[i].SetOutputLimits(50, 255);
         pid[i].SetMode(AUTOMATIC);
 
         
     }
     for (int i = 3; i < 6; i++) {
         pid[i].SetTunings(condition[0].regulSalinite.Kp, condition[0].regulSalinite.Ki, condition[0].regulSalinite.Kd);
-        pid[i].SetOutputLimits(0, 255);
+        pid[i].SetOutputLimits(50, 255);
         pid[i].SetMode(AUTOMATIC);
 
 
@@ -453,7 +481,8 @@ int regulationTemperature(uint8_t mesoID) {
         
             //condition.load();
         pid[mesoID].Compute();
-            condition[0].Meso[mesoID].tempSortiePID_pc = (int)(condition[0].Meso[mesoID].tempSortiePID / 2.55);
+            //condition[0].Meso[mesoID].tempSortiePID_pc = (int)(condition[0].Meso[mesoID].tempSortiePID / 2.55);
+            condition[0].Meso[mesoID].tempSortiePID_pc = (int)map(condition[0].Meso[mesoID].tempSortiePID, 50, 255, 0, 100);
             analogWrite(condition[0].Meso[mesoID]._pin_V3V, condition[0].Meso[mesoID].tempSortiePID);
             return condition[0].Meso[mesoID].tempSortiePID_pc;
     }
@@ -472,7 +501,8 @@ int regulationPression(uint8_t mesoID) {//0 = Eau ambiante, 1 = Eau Froide, 2 = 
     else {
         //condition.load();
         pid[mesoID+3].Compute();
-        condition[0].Meso[mesoID].salSortiePID_pc = (int)(condition[0].Meso[mesoID].salSortiePID / 2.55);
+        //condition[0].Meso[mesoID].salSortiePID_pc = (int)(condition[0].Meso[mesoID].salSortiePID / 2.55); 
+        condition[0].Meso[mesoID].salSortiePID_pc = (int)map(condition[0].Meso[mesoID].salSortiePID, 50, 255, 0, 100);
         analogWrite(condition[0].Meso[mesoID]._pin_V2V, condition[0].Meso[mesoID].salSortiePID);
         return condition[0].Meso[mesoID].salSortiePID_pc;
     }
@@ -514,7 +544,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t lenght)
     case WStype_TEXT:
 
         //Serial.print(num); Serial.print(F(" Payload:")); Serial.println((char*)payload);
-        Serial.print("Payload received from "); Serial.println(num); Serial.println(": "); Serial.println((char*)payload);
+        //Serial.print("Payload received from "); Serial.println(num); Serial.println(": "); Serial.println((char*)payload);
         readJSON((char*)payload, num);
 
 
@@ -531,7 +561,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t lenght)
 }
 
 void readJSON(char* json, uint8_t num) {
-    StaticJsonDocument<600> doc;
+    StaticJsonDocument<jsonDocSize> doc;
+    Serial.print("payload received:"); Serial.println(json);
     deserializeJson(doc, json);
 
     uint8_t command = doc["command"];
@@ -547,57 +578,82 @@ void readJSON(char* json, uint8_t num) {
         }
     }
         
-    Serial.print("CondID:"); Serial.println(condID);
+   // Serial.print("CondID:"); Serial.println(condID);
     //if (senderID == 4) {//La trame vient du PC de supervision
         //AppSocketId = num;
-        switch (command) {
+    //if (condID == 1) { Serial.print("payload received:"); Serial.println(json); }
+
+    switch (command) {
         case REQ_PARAMS:
             condition[condID].load();
-            
-            condition[condID].serializeParams(buffer, RTC.getTime(),0);
+            Serial.print("CONDID:"); Serial.println(condID);
+            condition[condID].serializeParams(buffer, RTC.getTime(),0,doc);
             Serial.print("SEND PARAMS:"); Serial.println(buffer);
             webSocket.sendTXT(num, buffer);
             break;
-        case REQ_DATA:
-            
-            if(senderID ==4) condition[condID].serializeData(buffer, RTC.getTime(), 0, condID, true);
-            else condition[condID].serializeData(buffer, RTC.getTime(), 0, condID, false);
+
+        case REQ_DATA:            
+            if(senderID ==4) condition[condID].serializeData(buffer, RTC.getTime(), 0, condID, true, doc);
+            else condition[condID].serializeData(buffer, RTC.getTime(), 0, condID, false, doc);
+            //condition[condID].serializeData(buffer, RTC.getTime(), 0, condID, false, doc);
             Serial.print("SEND DATA:"); Serial.println(buffer);
             webSocket.sendTXT(num, buffer);
             break;
+
         case SEND_PARAMS:
             condition[condID].load();
-            condition[condID].deserializeParams(doc);
-            
+            condition[condID].deserializeParams(doc);            
             condition[condID].save();
             
             if (senderID == 4) {
-                condition[condID].serializeParams(buffer, RTC.getTime(), 0);
+                condition[condID].serializeParams(buffer, RTC.getTime(), 0,doc);
                 webSocket.sendTXT(num, buffer); 
             }
             if(condID == 0) setPIDparams();
             break;
+
         case SEND_DATA:
             condition[condID].load();
             condition[condID].deserializeData(doc);
-            condition[condID].serializeParams(buffer, RTC.getTime(), 0);
-            Serial.print("SEND PARAMS!!:"); Serial.println(buffer);
+            condition[condID].serializeParams(buffer, RTC.getTime(), 0,doc);
+           // Serial.print("SEND PARAMS!!:"); Serial.println(buffer);
             webSocket.sendTXT(num, buffer);
             break;
+
         case REQ_MASTER_DATA:
-            SerializeMasterData(buffer, RTC.getTime());
+            SerializeMasterData(buffer, RTC.getTime(),doc);
             webSocket.sendTXT(num, buffer);
             break;
-
         
+        case CALIBRATE_SENSOR:
+            Serial.println("CALIB REQ received");
+            calib.mesoID = doc[F("mesoID")];
+            calib.sensorID = doc[F("sensorID")];
+            calib.calibParam = doc[F("calibParam")];
+            calib.value = doc[F("value")];
+            if (condID == 0) {
+                
+                
+                //calibrateSensor(calib.mesoID, calib.sensorID, calib.calibParam, calib.value);
+                webSocket.sendTXT(num, json);
+                calib.calibRequested = true;
+            }
+            else {
+                //webSocket.broadcastTXT(json);
+                String msg = "{command:4,condID:";
+                msg += String(condID) + ",senderID:4,mesoID:";
+                msg += String(calib.mesoID) + ",sensorID:" + String(calib.sensorID);
+                msg += ",calibParam:" + String(calib.calibParam);
+                msg += ",value:" + String(calib.value);
+                msg += "}";
+                webSocket.broadcastTXT(msg);
+            }
+                break;
 
-            /*case CALIBRATE_SENSOR:
-                readCalibRequest(doc);
-                break;*/
         default:
-            webSocket.sendTXT(num, F("wrong request1"));
+            webSocket.sendTXT(num, F("wrong request"));
             break;
-        }
+    }
 }
 
 
@@ -610,35 +666,9 @@ float checkValue(float val, float min, float max, float def) {
 }
 
 
-/*void requestAllStatus() {
-    if (elapsed(&tempoSensorRead.debut, tempoSensorRead.interval)) {
-        switch (state) {
-        case 0:
-            Serial.println("PODOC:");
-            if (Podoc.requestStatus()) {
-                state++;
-            }
-            break;
-        case 1:
-            Serial.println("NTU:");
-            if (NTU.requestStatus()) {
-                state++;
-            }
-            break;
-        case 2:
-            Serial.println("PC4E:");
-            if (PC4E.requestStatus()) {
-                state = 0;
-            }
-            break;
-        }
-    }
-}*/
-
-
-bool SerializeMasterData(char* buffer, uint32_t timeString) {
+bool SerializeMasterData(char* buffer, uint32_t timeString, StaticJsonDocument<512> doc) {
     //Serial.println(F("SENDDATA"));
-    StaticJsonDocument<512> doc;
+    //StaticJsonDocument<512> doc;
 
     doc[F("command")] = SEND_MASTER_DATA;
     doc[F("condID")] = 0;
@@ -658,81 +688,143 @@ bool SerializeMasterData(char* buffer, uint32_t timeString) {
 }
 
 
-int state = 0;
-
 void readMBSensors() {
     if (elapsed(&tempoSensorRead.debut, tempoSensorRead.interval)) {
-        if (loopData.sensor) {
-            mbSensor.query.u8id = loopData.meso + 10;
-            if (state == 0) {
-                if (mbSensor.requestValues()) {
-                    state = 1;
+        if (state == 0 && calib.calibRequested) {
+            calib.calibRequested = false;
+            calib.calibEnCours = true;
+        }
+        if (calib.calibEnCours) {
+            calibrateSensor();
+        }
+        else {
+            if (loopData.sensor) {
+                mbSensor.query.u8id = loopData.meso + 10;
+                if (state == 0) {
+                    if (mbSensor.requestValues()) {
+                        state = 1;
+                    }
+                }
+                else if (mbSensor.readValues()) {
+
+                    /*Serial.print(F("READ PODOC:")); Serial.println(loopData.meso);
+                    Serial.print(F("Temperature:")); Serial.println(mbSensor.params[0]);
+                    Serial.print(F("oxy %:")); Serial.println(mbSensor.params[1]);
+                    Serial.print(F("oxy mg/L:")); Serial.println(mbSensor.params[2]);
+                    Serial.print(F("oxy ppm:")); Serial.println(mbSensor.params[3]);*/
+                    condition[0].Meso[loopData.meso].oxy_temp = mbSensor.params[0];
+                    condition[0].Meso[loopData.meso].oxy = mbSensor.params[2];
+                    condition[0].Meso[loopData.meso].oxy_pc = mbSensor.params[1];
+                    state = 0;
+                    loopData.sensor = 0;
                 }
             }
-            else if (mbSensor.readValues()) {
-                
-                /*Serial.print(F("READ PODOC:")); Serial.println(loopData.meso);
-                Serial.print(F("Temperature:")); Serial.println(mbSensor.params[0]);
-                Serial.print(F("oxy %:")); Serial.println(mbSensor.params[1]);
-                Serial.print(F("oxy mg/L:")); Serial.println(mbSensor.params[2]);
-                Serial.print(F("oxy ppm:")); Serial.println(mbSensor.params[3]);*/
-                condition[0].Meso[loopData.meso].oxy = mbSensor.params[2];
-                state = 0;
-                loopData.sensor = 0;
-            }
-        }else {
-            mbSensor.query.u8id = loopData.meso + 30;
-            if (state == 0) {
-                if (mbSensor.requestValues()) {
-                    state = 1;
+            else {
+                mbSensor.query.u8id = loopData.meso + 30;
+                if (state == 0) {
+                    if (mbSensor.requestValues()) {
+                        state = 1;
+                    }
                 }
-            }
-            else if (mbSensor.readValues()) {
-                /*Serial.print(F("READ PC4E:")); Serial.println(loopData.meso);
-                Serial.print(F("Temperature:")); Serial.println(mbSensor.params[0]);
-                Serial.print(F("cond uS/cm:")); Serial.println(mbSensor.params[1]);
-                Serial.print(F("sali g/kg:")); Serial.println(mbSensor.params[2]);*/
-                condition[0].Meso[loopData.meso].temperature = mbSensor.params[0];
-                condition[0].Meso[loopData.meso].cond = mbSensor.params[1];
-                condition[0].Meso[loopData.meso].salinite = mbSensor.params[2];
-                
-                state = 0;
-                loopData.sensor = 1;
-                loopData.meso++;
-                if (loopData.meso == 3) loopData.meso = 0;
+                else if (mbSensor.readValues()) {
+                    /*Serial.print(F("READ PC4E:")); Serial.println(loopData.meso);
+                    Serial.print(F("Temperature:")); Serial.println(mbSensor.params[0]);
+                    Serial.print(F("cond uS/cm:")); Serial.println(mbSensor.params[1]);
+                    Serial.print(F("sali g/kg:")); Serial.println(mbSensor.params[2]);*/
+                    condition[0].Meso[loopData.meso].temperature = mbSensor.params[0];
+                    condition[0].Meso[loopData.meso].cond = mbSensor.params[1];
+                    condition[0].Meso[loopData.meso].salinite = mbSensor.params[2];
+
+                    state = 0;
+                    loopData.sensor = 1;
+                    loopData.meso++;
+                    if (loopData.meso == 3) loopData.meso = 0;
+                    //if (loopData.meso == 1) loopData.meso = 0;
+                }
             }
         }
+        
     }
 }
 
-/*void calibration() {
+void calibrateSensor() {
+    if (calib.sensorID == 1) mbSensor.query.u8id = calib.mesoID + 10;
+    else mbSensor.query.u8id = calib.mesoID + 30;
 
-    if (elapsed(&debutReq, 500)) {
-        switch (stateCalibration) {
-        case 0:
-            if (Podoc.calibrateCoeff(17.0, 514)) {
-                Serial.println("calibrate temp");
-                stateCalibration++;
-            }
-            break;
-        case 1:
-            if (Podoc.validateCalibration(638)) {
-                Serial.println("validate calibration temp");
-                stateCalibration++;
-            }
-
-            break;
-        case 2:
-            step = Hamilton.calibrate(5.0, step);
-            if (step == 3) {
-                state = 0;
-                calib = false;
-                stateCalibration = 0;
-            }
-            break;
+    if (calib.calibParam == 99) {
+        if (state == 0) {
+            Serial.println("factory reset ?");
+            if (mbSensor.factoryReset()) state = 1;
+        }
+        else {
+            calib.calibEnCours = false;
+            state = 0;
+            Serial.println("factory reset OKKKKK");
         }
     }
-}*/
+    else {
+        int offset;
+        Serial.print("value"); Serial.println(calib.value);
+        if (state == 0) {
+            Serial.println("calibrate sensor");
+            switch (calib.sensorID) {
+            case 0: //PC4E temperature
+                Serial.println("CALIB temp");
+                if (calib.calibParam == 0) {
+                    Serial.println("offset");
+                    offset = 512;
+                }
+                else {
+                    Serial.println("slope");
+                    offset = 514;
+                }
+                break;
+            case 1: //PODOC oxy
+                if (calib.calibParam == 0) {
+                    offset = 516;
+                }
+                else{
+                    offset = 522;
+                }
+                break;
+            case 2: //PC4E cond
+                if (calib.calibParam == 0) {
+                    offset = 528;
+                }
+                else{
+                    offset = 530;
+                }
+                break;
+            }
+            if (mbSensor.calibrateCoeff(calib.value, offset)) state = 1;
+        }
+        else {
+            switch (calib.sensorID) {
+            case 0: //PC4E temperature
+                offset = 638;
+                break;
+            case 1: //PODOC oxy
+                if (calib.calibParam == 0) {
+                    offset = 654;
+                }
+                else {
+                    offset = 654;
+                }
+                break;
+            case 2: //PC4E cond
+                offset = 654;
+                break;
+            }
+            Serial.println("validate Calibration");
+            if (mbSensor.validateCalibration(offset)) {
+                state = 0;
+                calib.calibEnCours = false;
+                Serial.println("validate Calibration OKKKKK");
+            }
+        }
+    }   
+
+}
 
 
 
