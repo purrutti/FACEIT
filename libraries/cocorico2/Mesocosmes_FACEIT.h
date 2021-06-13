@@ -59,6 +59,9 @@ public:
     float oxy;
     float salinite;
 
+    float oxy_pc;
+    float oxy_temp;
+
     int startAddress;
 
     double tempSortiePID;
@@ -82,17 +85,22 @@ public:
     float readFlow(int lissage) {
         
         int ana = analogRead(_pinDebitmetre); // 0-1023 value corresponding to 0-5 V corresponding to 0-20 mA
-        int mA = map(ana, 0, 1023, 0, 2000); //map to milli amps with 2 extra digits
+        //int mA = map(ana, 0, 1023, 0, 2000); //map to milli amps with 2 extra digits
         double ancientDebit = debit;
-        debit = (0.625 * (mA - 400)) / 100.0; // flowrate in l/mn
+        //debit = (0.625 * (mA - 400)) / 100.0; // flowrate in l/mn
+
+        int v = map(ana, 0, 165, 0, 1000);//map to 0-10v with 2 digits
+
+        debit = map(v, 200, 1000, 0, 1000)/100.0;//map to l/mn with 2 digits
+
         debit = (lissage * debit + (100.0 - lissage) * ancientDebit)/100.0;
+
+        if (debit < 0) debit = 0;
+
         return debit;
     }
 
     int save() {
-        //TODO: verif
-        Serial.print("SAVE condID:");
-        Serial.println(_mesocosmeIndex);
         int add = startAddress;
         EEPROM.updateInt(add, _mesocosmeIndex); add += sizeof(int);
         
@@ -100,7 +108,6 @@ public:
     }
 
     int load() {
-        //TODO: verif
         int add = startAddress;
         _mesocosmeIndex = EEPROM.readInt(add); add += sizeof(int);
         
