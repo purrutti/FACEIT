@@ -119,13 +119,10 @@
             <Label x:Name="label_C3M2_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="645" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C1M0_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="446" Canvas.Top="367" />
             <Label x:Name="label_C2M0_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="446" Canvas.Top="546" />
-            <Label x:Name="label_C3M0_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="446" Canvas.Top="725" />
             <Label x:Name="label_C1M1_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="756" Canvas.Top="360" />
             <Label x:Name="label_C2M1_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="756" Canvas.Top="539" />
-            <Label x:Name="label_C3M1_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="756" Canvas.Top="716" />
             <Label x:Name="label_C1M2_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="1082" Canvas.Top="361" />
             <Label x:Name="label_C2M2_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="1082" Canvas.Top="540" />
-            <Label x:Name="label_C3M2_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="1082" Canvas.Top="717" />
             <Label x:Name="label_C0M1_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="769" Canvas.Top="68" />
             <Label x:Name="label_C2M1_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="770" Canvas.Top="423" />
             <Label x:Name="label_C3M1_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="769" Canvas.Top="599" />

@@ -61,35 +61,35 @@ namespace Appli_CocoriCO2
     }
     public class Mesocosme
     {
-        [JsonProperty("MesoID",Required = Required.Default)]
+        [JsonProperty("MID",Required = Required.Default)]
         public int mesocosmeID{ get; set; }
 
-        [JsonProperty(Required = Required.Default)]
+        [JsonProperty("flow", Required = Required.Default)]
         public double debit { get; set; }
-        [JsonProperty(Required = Required.Default)]
+        [JsonProperty("temp", Required = Required.Default)]
         public double temperature { get; set; }
-        [JsonProperty(Required = Required.Default)] 
+        [JsonProperty("oxy", Required = Required.Default)] 
         public double oxy { get; set; }
-        [JsonProperty(Required = Required.Default)]
+        [JsonProperty("oxy_temp", Required = Required.Default)]
         public double oxy_temp { get; set; }
-        [JsonProperty(Required = Required.Default)]
+        [JsonProperty("oxy_pc", Required = Required.Default)]
         public double oxy_pc { get; set; }
-        [JsonProperty(Required = Required.Default)]
+        [JsonProperty("cond", Required = Required.Default)]
         public double cond { get; set; }
-        [JsonProperty(Required = Required.Default)]
+        [JsonProperty("sali", Required = Required.Default)]
         public double salinite { get; set; }
 
-        [JsonProperty(Required = Required.Default)]
+        [JsonProperty("tempSPID_pc", Required = Required.Default)]
         public double tempSortiePID_pc { get; set; }
-        [JsonProperty(Required = Required.Default)]
+        [JsonProperty("salSPID_pc", Required = Required.Default)]
         public double salSortiePID_pc { get; set; }
 
     }
     public class Regul
     {
-        [JsonProperty(Required = Required.Default)]
+        [JsonProperty("sortiePID", Required = Required.Default)]
         public double sortiePID { get; set; }
-        [JsonProperty(Required = Required.Default)]
+        [JsonProperty("cons", Required = Required.Default)]
         public double consigne { get; set; }
         [JsonProperty(Required = Required.Default)]
         public double Kp { get; set; }
@@ -99,9 +99,9 @@ namespace Appli_CocoriCO2
         public double Kd { get; set; }
         [JsonProperty(Required = Required.Default)]
         public double sortiePID_pc { get; set; }
-        [JsonProperty(Required = Required.Default)]
+        [JsonProperty("autForcage", Required = Required.Default)]
         public bool autorisationForcage { get; set; }
-        [JsonProperty(Required = Required.Default)]
+        [JsonProperty("consForcage", Required = Required.Default)]
         public int consigneForcage { get; set; }
         [JsonProperty(Required = Required.Default)]
         public double offset { get; set; }
@@ -114,9 +114,9 @@ namespace Appli_CocoriCO2
         public int condID { get; set; }
         [JsonProperty("data",Required = Required.Default)]
         public Mesocosme[] Meso { get; set; }
-        [JsonProperty("regulTemp", Required = Required.Default)]
+        [JsonProperty("regulT", Required = Required.Default)]
         public Regul regulTemp { get; set; }
-        [JsonProperty("regulSalinite", Required = Required.Default)]
+        [JsonProperty("regulS", Required = Required.Default)]
         public Regul regulSalinite { get; set; }
         public long time { get; set; }
         public DateTime lastUpdated { get; set; }
@@ -239,8 +239,8 @@ namespace Appli_CocoriCO2
                 inSituData.temperature = t;
 
                 label_IS_Time.Content = "Time: " + inSituData.time.ToString("yyyy-MM-dd HH:mm:ss");
-                label_IS_Temp.Content = string.Format(ci, "Temperature: {0:0.00}°C", inSituData.temperature);
-                label_IS_Salinity.Content = string.Format(ci, "Salinity: {0:0.00}g/kg", inSituData.salinite);
+                label_IS_Temp.Content = string.Format(ci, "Temperature: {0:0.00} °C", inSituData.temperature);
+                label_IS_Salinity.Content = string.Format(ci, "Salinity:          {0:0.00}", inSituData.salinite);
                 //data.ForEach(Console.WriteLine);
             }
             catch(Exception e)
@@ -302,19 +302,19 @@ namespace Appli_CocoriCO2
             switch (step)
             {
                 case 0:
-                    msg = "{command:1,condID:0, senderID:4}";
+                    msg = "{\"command\":1,\"condID\":0,\"senderID\":4}";
                     break;
                 case 1:
-                    msg = "{command:1,condID:1, senderID:4}";
+                    msg = "{\"command\":1,\"condID\":1,\"senderID\":4}";
                     break;
                 case 2:
-                    msg = "{command:1,condID:2, senderID:4}";
+                    msg = "{\"command\":1,\"condID\":2,\"senderID\":4}";
                     break;
                 case 3:
-                    msg = "{command:1,condID:3, senderID:4}";
+                    msg = "{\"command\":1,\"condID\":3,\"senderID\":4}";
                     break;
                 case 4:
-                    msg = "{command:5,condID:0, senderID:4, time:" + Timestamp + "}";
+                    msg = "{\"command\":5,\"condID\":0,\"senderID\":4,\"time\":" + Timestamp + "}";
                     break;
             }
             if (step < 4) step++; else step = 0;
@@ -404,28 +404,28 @@ namespace Appli_CocoriCO2
                 label_C0_pressionEF_setpoint.Content = string.Format(ci, "Pressure setpoint: {0:0.000} bars", conditions[0].regulSalinite.consigne);
                 label_C0_pressionEC_setpoint.Content = string.Format(ci, "Pressure setpoint: {0:0.000} bars", conditions[0].regulSalinite.consigne);
                 label_C0_Temp_setpoint.Content = string.Format(ci, "T°C:        {0:0.00} °C", conditions[0].regulTemp.consigne);
-                label_C1_Cond_setpoint.Content = string.Format(ci, "Salinity: {0:0.00} g/kg", conditions[1].regulSalinite.consigne);
+                label_C1_Cond_setpoint.Content = string.Format(ci, "Salinity: {0:0.00}", conditions[1].regulSalinite.consigne);
                 label_C1_Temp_setpoint.Content = string.Format(ci, "T°C:        {0:0.00} °C", conditions[1].regulTemp.consigne);
-                label_C2_Cond_setpoint.Content = string.Format(ci, "Salinity: {0:0.00} g/kg", conditions[2].regulSalinite.consigne);
+                label_C2_Cond_setpoint.Content = string.Format(ci, "Salinity: {0:0.00}", conditions[2].regulSalinite.consigne);
                 label_C2_Temp_setpoint.Content = string.Format(ci, "T°C:        {0:0.00} °C", conditions[2].regulTemp.consigne);
-                label_C3_Cond_setpoint.Content = string.Format(ci, "Salinity: {0:0.00} g/kg", conditions[3].regulSalinite.consigne);
+                label_C3_Cond_setpoint.Content = string.Format(ci, "Salinity: {0:0.00}", conditions[3].regulSalinite.consigne);
                 label_C3_Temp_setpoint.Content = string.Format(ci, "T°C:        {0:0.00} °C", conditions[3].regulTemp.consigne);
 
 
                 if (conditions[0].regulSalinite.autorisationForcage)
                 {
-                    label_C0_PressionEA_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[0].regulSalinite.consigneForcage);
-                    label_C0_PressionEF_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[0].regulSalinite.consigneForcage);
-                    label_C0_PressionEC_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[0].regulSalinite.consigneForcage);
+                    label_C0_PressionEA_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[0].regulSalinite.consigneForcage);
+                    label_C0_PressionEF_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[0].regulSalinite.consigneForcage);
+                    label_C0_PressionEC_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[0].regulSalinite.consigneForcage);
                     label_C0_PressionEA_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C0_PressionEF_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C0_PressionEC_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                 }
                 else
                 {
-                    label_C0_PressionEA_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[0].Meso[0].salSortiePID_pc);
-                    label_C0_PressionEF_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[0].Meso[1].salSortiePID_pc);
-                    label_C0_PressionEC_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[0].Meso[2].salSortiePID_pc);
+                    label_C0_PressionEA_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[0].Meso[0].salSortiePID_pc);
+                    label_C0_PressionEF_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[0].Meso[1].salSortiePID_pc);
+                    label_C0_PressionEC_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[0].Meso[2].salSortiePID_pc);
                     label_C0_PressionEA_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C0_PressionEF_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C0_PressionEC_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
@@ -433,18 +433,18 @@ namespace Appli_CocoriCO2
 
                 if (conditions[0].regulTemp.autorisationForcage)
                 {
-                    label_C0M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[0].regulTemp.consigneForcage);
-                    label_C0M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[0].regulTemp.consigneForcage);
-                    label_C0M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[0].regulTemp.consigneForcage);
+                    label_C0M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[0].regulTemp.consigneForcage);
+                    label_C0M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[0].regulTemp.consigneForcage);
+                    label_C0M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[0].regulTemp.consigneForcage);
                     label_C0M0_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C0M1_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C0M2_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                 }
                 else
                 {
-                    label_C0M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[0].Meso[0].tempSortiePID_pc);
-                    label_C0M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[0].Meso[1].tempSortiePID_pc);
-                    label_C0M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[0].Meso[2].tempSortiePID_pc);
+                    label_C0M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[0].Meso[0].tempSortiePID_pc);
+                    label_C0M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[0].Meso[1].tempSortiePID_pc);
+                    label_C0M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[0].Meso[2].tempSortiePID_pc);
                     label_C0M0_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C0M1_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C0M2_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
@@ -454,18 +454,18 @@ namespace Appli_CocoriCO2
 
                 if (conditions[1].regulSalinite.autorisationForcage)
                 {
-                    label_C1M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[1].regulSalinite.consigneForcage);
-                    label_C1M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[1].regulSalinite.consigneForcage);
-                    label_C1M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[1].regulSalinite.consigneForcage);
+                    label_C1M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[1].regulSalinite.consigneForcage);
+                    label_C1M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[1].regulSalinite.consigneForcage);
+                    label_C1M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[1].regulSalinite.consigneForcage);
                     label_C1M0_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C1M1_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C1M2_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                 }
                 else
                 {
-                    label_C1M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[1].Meso[0].salSortiePID_pc);
-                    label_C1M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[1].Meso[1].salSortiePID_pc);
-                    label_C1M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[1].Meso[2].salSortiePID_pc);
+                    label_C1M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[1].Meso[0].salSortiePID_pc);
+                    label_C1M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[1].Meso[1].salSortiePID_pc);
+                    label_C1M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[1].Meso[2].salSortiePID_pc);
                     label_C1M0_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C1M1_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C1M2_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
@@ -473,18 +473,18 @@ namespace Appli_CocoriCO2
 
                 if (conditions[1].regulTemp.autorisationForcage)
                 {
-                    label_C1M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[1].regulTemp.consigneForcage);
-                    label_C1M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[1].regulTemp.consigneForcage);
-                    label_C1M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[1].regulTemp.consigneForcage);
+                    label_C1M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[1].regulTemp.consigneForcage);
+                    label_C1M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[1].regulTemp.consigneForcage);
+                    label_C1M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[1].regulTemp.consigneForcage);
                     label_C1M0_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C1M1_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C1M2_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                 }
                 else
                 {
-                    label_C1M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[1].Meso[0].tempSortiePID_pc);
-                    label_C1M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[1].Meso[1].tempSortiePID_pc);
-                    label_C1M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[1].Meso[2].tempSortiePID_pc);
+                    label_C1M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[1].Meso[0].tempSortiePID_pc);
+                    label_C1M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[1].Meso[1].tempSortiePID_pc);
+                    label_C1M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[1].Meso[2].tempSortiePID_pc);
                     label_C1M0_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C1M1_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C1M2_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
@@ -492,18 +492,18 @@ namespace Appli_CocoriCO2
 
                 if (conditions[2].regulSalinite.autorisationForcage)
                 {
-                    label_C2M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[2].regulSalinite.consigneForcage);
-                    label_C2M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[2].regulSalinite.consigneForcage);
-                    label_C2M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[2].regulSalinite.consigneForcage);
+                    label_C2M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[2].regulSalinite.consigneForcage);
+                    label_C2M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[2].regulSalinite.consigneForcage);
+                    label_C2M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[2].regulSalinite.consigneForcage);
                     label_C2M0_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C2M1_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C2M2_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                 }
                 else
                 {
-                    label_C2M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[2].Meso[0].salSortiePID_pc);
-                    label_C2M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[2].Meso[1].salSortiePID_pc);
-                    label_C2M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[2].Meso[2].salSortiePID_pc);
+                    label_C2M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[2].Meso[0].salSortiePID_pc);
+                    label_C2M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[2].Meso[1].salSortiePID_pc);
+                    label_C2M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0}%", conditions[2].Meso[2].salSortiePID_pc);
                     label_C2M0_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C2M1_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C2M2_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
@@ -511,109 +511,92 @@ namespace Appli_CocoriCO2
 
                 if (conditions[2].regulTemp.autorisationForcage)
                 {
-                    label_C2M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[2].regulTemp.consigneForcage);
-                    label_C2M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[2].regulTemp.consigneForcage);
-                    label_C2M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[2].regulTemp.consigneForcage);
+                    label_C2M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[2].regulTemp.consigneForcage);
+                    label_C2M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[2].regulTemp.consigneForcage);
+                    label_C2M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[2].regulTemp.consigneForcage);
                     label_C2M0_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C2M1_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C2M2_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                 }
                 else
                 {
-                    label_C2M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[2].Meso[0].tempSortiePID_pc);
-                    label_C2M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[2].Meso[1].tempSortiePID_pc);
-                    label_C2M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[2].Meso[2].tempSortiePID_pc);
+                    label_C2M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[2].Meso[0].tempSortiePID_pc);
+                    label_C2M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[2].Meso[1].tempSortiePID_pc);
+                    label_C2M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[2].Meso[2].tempSortiePID_pc);
                     label_C2M0_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C2M1_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C2M2_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                 }
 
-                if (conditions[3].regulSalinite.autorisationForcage)
-                {
-                    label_C3M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[3].regulSalinite.consigneForcage);
-                    label_C3M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[3].regulSalinite.consigneForcage);
-                    label_C3M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[3].regulSalinite.consigneForcage);
-                    label_C3M0_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
-                    label_C3M1_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
-                    label_C3M2_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
-                }
-                else
-                {
-                    label_C3M0_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[3].Meso[0].salSortiePID_pc);
-                    label_C3M1_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[3].Meso[1].salSortiePID_pc);
-                    label_C3M2_Cond_sortiePID.Content = string.Format(ci, "Valve: {0:0} %", conditions[3].Meso[2].salSortiePID_pc);
-                    label_C3M0_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
-                    label_C3M1_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
-                    label_C3M2_Cond_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
-                }
+               
 
                 if (conditions[3].regulTemp.autorisationForcage)
                 {
-                    label_C3M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[3].regulTemp.consigneForcage);
-                    label_C3M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[3].regulTemp.consigneForcage);
-                    label_C3M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[3].regulTemp.consigneForcage);
+                    label_C3M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[3].regulTemp.consigneForcage);
+                    label_C3M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[3].regulTemp.consigneForcage);
+                    label_C3M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[3].regulTemp.consigneForcage);
                     label_C3M0_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C3M1_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                     label_C3M2_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Red;
                 }
                 else
                 {
-                    label_C3M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[3].Meso[0].tempSortiePID_pc);
-                    label_C3M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[3].Meso[1].tempSortiePID_pc);
-                    label_C3M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0} %", conditions[3].Meso[2].tempSortiePID_pc);
+                    label_C3M0_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[3].Meso[0].tempSortiePID_pc);
+                    label_C3M1_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[3].Meso[1].tempSortiePID_pc);
+                    label_C3M2_Temp_sortiePID.Content = string.Format(ci, "V3V: {0:0}%", conditions[3].Meso[2].tempSortiePID_pc);
                     label_C3M0_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C3M1_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                     label_C3M2_Temp_sortiePID.Foreground = System.Windows.Media.Brushes.Black;
                 }
 
-                label_C0M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/mn", conditions[0].Meso[0].debit);
-                label_C0M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/mn", conditions[0].Meso[1].debit);
-                label_C0M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/mn", conditions[0].Meso[2].debit);
-                label_C0M0_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[0].Meso[0].oxy);
-                label_C0M1_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[0].Meso[1].oxy);
-                label_C0M2_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[0].Meso[2].oxy);
-                label_C0M0_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[0].Meso[0].salinite);
-                label_C0M1_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[0].Meso[1].salinite);
-                label_C0M2_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[0].Meso[2].salinite);
+                label_C0M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} L/min", conditions[0].Meso[0].debit);
+                label_C0M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} L/min", conditions[0].Meso[1].debit);
+                label_C0M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} L/min", conditions[0].Meso[2].debit);
+                label_C0M0_O2.Content = string.Format(ci, "02:           {0:0.00}%", conditions[0].Meso[0].oxy_pc);
+                label_C0M1_O2.Content = string.Format(ci, "02:           {0:0.00}%", conditions[0].Meso[1].oxy_pc);
+                label_C0M2_O2.Content = string.Format(ci, "02:           {0:0.00}%", conditions[0].Meso[2].oxy_pc);
+                label_C0M0_Cond.Content = string.Format(ci, "Salinity:   {0:0.00}", conditions[0].Meso[0].salinite);
+                label_C0M1_Cond.Content = string.Format(ci, "Salinity:   {0:0.00}", conditions[0].Meso[1].salinite);
+                label_C0M2_Cond.Content = string.Format(ci, "Salinity:   {0:0.00}", conditions[0].Meso[2].salinite);
                 label_C0M0_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[0].Meso[0].temperature);
                 label_C0M1_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[0].Meso[1].temperature);
                 label_C0M2_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[0].Meso[2].temperature);
 
-                label_C1M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/mn", conditions[1].Meso[0].debit);
-                label_C1M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/mn", conditions[1].Meso[1].debit);
-                label_C1M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/mn", conditions[1].Meso[2].debit);
-                label_C1M0_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[1].Meso[0].oxy);
-                label_C1M1_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[1].Meso[1].oxy);
-                label_C1M2_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[1].Meso[2].oxy);
-                label_C1M0_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[1].Meso[0].salinite);
-                label_C1M1_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[1].Meso[1].salinite);
-                label_C1M2_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[1].Meso[2].salinite);
+                label_C1M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} L/min", conditions[1].Meso[0].debit);
+                label_C1M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} L/min", conditions[1].Meso[1].debit);
+                label_C1M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} L/min", conditions[1].Meso[2].debit);
+                label_C1M0_O2.Content = string.Format(ci, "02:           {0:0.00}%", conditions[1].Meso[0].oxy_pc);
+                label_C1M1_O2.Content = string.Format(ci, "02:           {0:0.00}%", conditions[1].Meso[1].oxy_pc);
+                label_C1M2_O2.Content = string.Format(ci, "02:           {0:0.00}%", conditions[1].Meso[2].oxy_pc);
+                label_C1M0_Cond.Content = string.Format(ci, "Salinity:   {0:0.00}", conditions[1].Meso[0].salinite);
+                label_C1M1_Cond.Content = string.Format(ci, "Salinity:   {0:0.00}", conditions[1].Meso[1].salinite);
+                label_C1M2_Cond.Content = string.Format(ci, "Salinity:   {0:0.00}", conditions[1].Meso[2].salinite);
                 label_C1M0_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[1].Meso[0].temperature);
                 label_C1M1_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[1].Meso[1].temperature);
                 label_C1M2_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[1].Meso[2].temperature);
 
-                label_C2M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/mn", conditions[2].Meso[0].debit);
-                label_C2M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/mn", conditions[2].Meso[1].debit);
-                label_C2M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/mn", conditions[2].Meso[2].debit);
-                label_C2M0_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[2].Meso[0].oxy);
-                label_C2M1_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[2].Meso[1].oxy);
-                label_C2M2_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[2].Meso[2].oxy);
-                label_C2M0_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[2].Meso[0].salinite);
-                label_C2M1_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[2].Meso[1].salinite);
-                label_C2M2_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[2].Meso[2].salinite);
+                label_C2M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} L/min", conditions[2].Meso[0].debit);
+                label_C2M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} L/min", conditions[2].Meso[1].debit);
+                label_C2M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} L/min", conditions[2].Meso[2].debit);
+                label_C2M0_O2.Content = string.Format(ci, "02:           {0:0.00}%", conditions[2].Meso[0].oxy_pc);
+                label_C2M1_O2.Content = string.Format(ci, "02:           {0:0.00}%", conditions[2].Meso[1].oxy_pc);
+                label_C2M2_O2.Content = string.Format(ci, "02:           {0:0.00}%", conditions[2].Meso[2].oxy_pc);
+                label_C2M0_Cond.Content = string.Format(ci, "Salinity:   {0:0.00}", conditions[2].Meso[0].salinite);
+                label_C2M1_Cond.Content = string.Format(ci, "Salinity:   {0:0.00}", conditions[2].Meso[1].salinite);
+                label_C2M2_Cond.Content = string.Format(ci, "Salinity:   {0:0.00}", conditions[2].Meso[2].salinite);
                 label_C2M0_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[2].Meso[0].temperature);
                 label_C2M1_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[2].Meso[1].temperature);
                 label_C2M2_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[2].Meso[2].temperature);
 
-                label_C3M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/mn", conditions[3].Meso[0].debit);
-                label_C3M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/mn", conditions[3].Meso[1].debit);
-                label_C3M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} l/mn", conditions[3].Meso[2].debit);
-                label_C3M0_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[3].Meso[0].oxy);
-                label_C3M1_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[3].Meso[1].oxy);
-                label_C3M2_O2.Content = string.Format(ci, "02:           {0:0.00} mg/L", conditions[3].Meso[2].oxy);
-                label_C3M0_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[3].Meso[0].salinite);
-                label_C3M1_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[3].Meso[1].salinite);
-                label_C3M2_Cond.Content = string.Format(ci, "Salinity:   {0:0.00} g/kg", conditions[3].Meso[2].salinite);
+                label_C3M0_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} L/min", conditions[3].Meso[0].debit);
+                label_C3M1_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} L/min", conditions[3].Meso[1].debit);
+                label_C3M2_Flowrate.Content = string.Format(ci, "Flowrate: {0:0.00} L/min", conditions[3].Meso[2].debit);
+                label_C3M0_O2.Content = string.Format(ci, "02:           {0:0.00}%", conditions[3].Meso[0].oxy_pc);
+                label_C3M1_O2.Content = string.Format(ci, "02:           {0:0.00}%", conditions[3].Meso[1].oxy_pc);
+                label_C3M2_O2.Content = string.Format(ci, "02:           {0:0.00}%", conditions[3].Meso[2].oxy_pc);
+                label_C3M0_Cond.Content = string.Format(ci, "Salinity:   {0:0.00}", conditions[3].Meso[0].salinite);
+                label_C3M1_Cond.Content = string.Format(ci, "Salinity:   {0:0.00}", conditions[3].Meso[1].salinite);
+                label_C3M2_Cond.Content = string.Format(ci, "Salinity:   {0:0.00}", conditions[3].Meso[2].salinite);
                 label_C3M0_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[3].Meso[0].temperature);
                 label_C3M1_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[3].Meso[1].temperature);
                 label_C3M2_Temp.Content = string.Format(ci, "T°C:         {0:0.00} °C", conditions[3].Meso[2].temperature);
@@ -928,23 +911,23 @@ namespace Appli_CocoriCO2
         {
             string msg = "{command:2,condID:" + c.condID + ",senderID:4,";
 
-            msg += "\"regulTemp\":{";
+            msg += "\"regulT\":{";
             msg += "\"offset\":" + c.regulTemp.offset.ToString() + ",";
-            msg += "\"consigne\":" + c.regulTemp.consigne.ToString() + ",";
+            msg += "\"cons\":" + c.regulTemp.consigne.ToString() + ",";
             msg += "\"Kp\":" + c.regulTemp.Kp.ToString() + ",";
             msg += "\"Ki\":" + c.regulTemp.Ki.ToString() + ",";
             msg += "\"Kd\":" + c.regulTemp.Kd.ToString() + ",";
-            msg += "\"consigneForcage\":" + c.regulTemp.consigneForcage + ",";
-            msg += "\"autorisationForcage\":\"" + c.regulTemp.autorisationForcage + "\"},";
+            msg += "\"consForcage\":" + c.regulTemp.consigneForcage + ",";
+            msg += "\"autForcage\":\"" + c.regulTemp.autorisationForcage + "\"},";
 
 
-            msg += "\"regulSalinite\":{\"offset\":" + c.regulSalinite.offset.ToString() + ",";
-            msg += "\"consigne\":" + c.regulSalinite.consigne.ToString() + ",";
+            msg += "\"regulS\":{\"offset\":" + c.regulSalinite.offset.ToString() + ",";
+            msg += "\"cons\":" + c.regulSalinite.consigne.ToString() + ",";
             msg += "\"Kp\":" + c.regulSalinite.Kp.ToString() + ",";
             msg += "\"Ki\":" + c.regulSalinite.Ki.ToString() + ",";
             msg += "\"Kd\":" + c.regulSalinite.Kd.ToString() + ",";
-            msg += "\"consigneForcage\":" + c.regulSalinite.consigneForcage + ",";
-            msg += "\"autorisationForcage\":\"" + c.regulSalinite.autorisationForcage + "\"}";
+            msg += "\"consForcage\":" + c.regulSalinite.consigneForcage + ",";
+            msg += "\"autForcage\":\"" + c.regulSalinite.autorisationForcage + "\"}";
 
             msg += "}";
 

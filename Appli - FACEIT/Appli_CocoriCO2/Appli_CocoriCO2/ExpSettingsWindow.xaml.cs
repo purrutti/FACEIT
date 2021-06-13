@@ -110,23 +110,23 @@ namespace Appli_CocoriCO2
         {
             string msg = "{command:2,condID:" + c.condID + ",senderID:4,";
 
-            msg += "\"regulTemp\":{";
+            msg += "\"regulT\":{";
             msg += "\"offset\":" + string.Format(ci, "{0:0.00}", c.regulTemp.offset) + ",";
-            msg += "\"consigne\":" + string.Format(ci, "{0:0.00}", c.regulTemp.consigne) + ",";
+            msg += "\"cons\":" + string.Format(ci, "{0:0.00}", c.regulTemp.consigne) + ",";
             msg += "\"Kp\":" + c.regulTemp.Kp.ToString() + ",";
             msg += "\"Ki\":" + c.regulTemp.Ki.ToString() + ",";
             msg += "\"Kd\":" + c.regulTemp.Kd.ToString() + ",";
-            msg += "\"consigneForcage\":" + c.regulTemp.consigneForcage + ",";
-            msg += "\"autorisationForcage\":\"" + c.regulTemp.autorisationForcage + "\"},";
+            msg += "\"consForcage\":" + c.regulTemp.consigneForcage + ",";
+            msg += "\"autForcage\":\"" + c.regulTemp.autorisationForcage + "\"},";
 
 
-            msg += "\"regulSalinite\":{\"offset\":" + string.Format(ci, "{0:0.00}", c.regulSalinite.offset) + ",";
-            msg += "\"consigne\":" + string.Format(ci, "{0:0.00}", c.regulSalinite.consigne) + ",";
+            msg += "\"regulS\":{\"offset\":" + string.Format(ci, "{0:0.00}", c.regulSalinite.offset) + ",";
+            msg += "\"cons\":" + string.Format(ci, "{0:0.00}", c.regulSalinite.consigne) + ",";
             msg += "\"Kp\":" + c.regulSalinite.Kp.ToString() + ",";
             msg += "\"Ki\":" + c.regulSalinite.Ki.ToString() + ",";
             msg += "\"Kd\":" + c.regulSalinite.Kd.ToString() + ",";
-            msg += "\"consigneForcage\":" + c.regulSalinite.consigneForcage + ",";
-            msg += "\"autorisationForcage\":\"" + c.regulSalinite.autorisationForcage + "\"}";
+            msg += "\"consForcage\":" + c.regulSalinite.consigneForcage + ",";
+            msg += "\"autForcage\":\"" + c.regulSalinite.autorisationForcage + "\"}";
 
             msg += "}";
 
