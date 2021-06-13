@@ -1,7 +1,6 @@
-/*
- Name:		Regul_Condition.ino
- Created:	05/01/2021 09:41:36
- Author:	pierr
+/*Name:		Regul_Condition.ino
+Created : 05 / 01 / 2021 09 : 41 : 36
+Author : pierr
 */
 
 #include <ModbusRtu.h>
@@ -23,7 +22,7 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, CONDID };
 
 // Set the static IP address to use if the DHCP fails to assign
 //IPAddress ip(192, 168, 1, 3);
-IPAddress ip(172, 16, 253, 10+CONDID);
+IPAddress ip(172, 16, 253, 10 + CONDID);
 
 /***** PIN ASSIGNMENTS *****/
 const byte PIN_DEBITMETRE_M0 = 57;
@@ -158,10 +157,6 @@ void setup() {
     pinMode(PIN_V2V_M1, OUTPUT);
     pinMode(PIN_V2V_M2, OUTPUT);
 
-
-
-    
-
     Serial.begin(115200);
     master.begin(9600); // baud-rate at 19200
     master.setTimeOut(2000); // if there is no answer in 5000 ms, roll over
@@ -170,7 +165,7 @@ void setup() {
 
     condition = Condition();
     condition.startAddress = 2;
-    
+
     load(2);
     condition.condID = CONDID;
 
@@ -180,7 +175,7 @@ void setup() {
 
     for (int j = 0; j < 3; j++) {
         condition.Meso[j] = Mesocosme(j);
-        condition.Meso[j].temperature = -90-CONDID;
+        condition.Meso[j].temperature = -90 - CONDID;
         condition.Meso[j].cond = -90 - CONDID;
         condition.Meso[j].salinite = -90 - CONDID;
         condition.Meso[j].oxy = -90 - CONDID;
@@ -193,7 +188,7 @@ void setup() {
         pid[i].SetMode(AUTOMATIC);
     }
     for (int i = 3; i < 6; i++) {
-        pid[i] = PID((double*)&condition.Meso[i-3].salinite, &condition.Meso[i - 3].salSortiePID, &condition.regulSalinite.consigne, condition.regulSalinite.Kp, condition.regulSalinite.Ki, condition.regulSalinite.Kd, REVERSE);
+        pid[i] = PID((double*)&condition.Meso[i - 3].salinite, &condition.Meso[i - 3].salSortiePID, &condition.regulSalinite.consigne, condition.regulSalinite.Kp, condition.regulSalinite.Ki, condition.regulSalinite.Kd, REVERSE);
         pid[i].SetOutputLimits(50, salOutputLimit);
         pid[i].SetMode(AUTOMATIC);
     }
@@ -215,18 +210,18 @@ void setup() {
         }
     }
     Serial.println("Ethernet connected");
-    
+
     webSocket.begin("172.16.253.10", 81);
 
     webSocket.onEvent(webSocketEvent);
 
     RTC.read();
+    delay(CONDID * 1000);
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
-    readMBSensors();  
-
+    readMBSensors();
 
     if (elapsed(&tempoRegul.debut, tempoRegul.interval)) {
         for (uint8_t i = 0; i < 3; i++) {
@@ -246,7 +241,7 @@ void sendData() {
         StaticJsonDocument<jsonDocSize> doc;
         char buffer[bufferSize];
         Serial.println("SEND DATA");
-        condition.serializeData(buffer, RTC.getTime(),CONDID, CONDID,false,doc);
+        condition.serializeData(buffer, RTC.getTime(), CONDID, CONDID, false, doc);
         Serial.println(buffer);
         webSocket.sendTXT(buffer);
     }
@@ -287,7 +282,7 @@ void checkMesocosmes() {
             condition.Meso[i].readFlow(10);
         }
     }
-    
+
 }
 
 
@@ -442,6 +437,7 @@ int regulationTemperature(uint8_t mesoID) {
         pid[mesoID].Compute();
         //condition.Meso[mesoID].tempSortiePID_pc = (int)(condition.Meso[mesoID].tempSortiePID / 2.55);
         condition.Meso[mesoID].tempSortiePID_pc = (int)map(condition.Meso[mesoID].tempSortiePID, 50, 255, 0, 100);
+        if (condition.Meso[mesoID].tempSortiePID_pc < 0) condition.Meso[mesoID].tempSortiePID_pc = 0;
         analogWrite(condition.Meso[mesoID]._pin_V3V, condition.Meso[mesoID].tempSortiePID);
         return condition.Meso[mesoID].tempSortiePID_pc;
     }
@@ -461,6 +457,7 @@ int regulationSalinite(uint8_t mesoID) {//0 = Eau ambiante, 1 = Eau Froide, 2 = 
         pid[mesoID + 3].Compute();
         //condition.Meso[mesoID].salSortiePID_pc = (int)(condition.Meso[mesoID].salSortiePID / 2.55);
         condition.Meso[mesoID].salSortiePID_pc = (int)map(condition.Meso[mesoID].salSortiePID, 50, salOutputLimit, 0, 100);
+        if (condition.Meso[mesoID].salSortiePID_pc < 0) condition.Meso[mesoID].salSortiePID_pc = 0;
         analogWrite(condition.Meso[mesoID]._pin_V2V, condition.Meso[mesoID].salSortiePID);
         return condition.Meso[mesoID].salSortiePID_pc;
     }
@@ -492,11 +489,11 @@ void readJSON(char* json) {
         switch (command) {
         case REQ_PARAMS:
 
-            condition.serializeParams(buffer, RTC.getTime(),CONDID,doc);
+            condition.serializeParams(buffer, RTC.getTime(), CONDID, doc);
             webSocket.sendTXT(buffer);
             break;
         case REQ_DATA:
-            condition.serializeData(buffer, RTC.getTime(), CONDID, CONDID,false,doc);
+            condition.serializeData(buffer, RTC.getTime(), CONDID, CONDID, false, doc);
             webSocket.sendTXT(buffer);
             Serial.print("BUFFER:");
             Serial.println(buffer);
@@ -505,8 +502,8 @@ void readJSON(char* json) {
             condition.deserializeParams(doc);
             condition.save();
             setPIDparams();
-            condition.serializeParams(buffer, RTC.getTime(), CONDID,doc);
-            webSocket.sendTXT(buffer);
+            //condition.serializeParams(buffer, RTC.getTime(), CONDID, doc);
+            //webSocket.sendTXT("ok");
             break;
         case CALIBRATE_SENSOR:
             Serial.println("CALIB REQ received");
@@ -524,5 +521,5 @@ void readJSON(char* json) {
 
         }
     }
-        
+
 }
