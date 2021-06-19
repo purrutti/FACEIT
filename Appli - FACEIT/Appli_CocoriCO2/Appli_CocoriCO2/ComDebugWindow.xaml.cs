@@ -144,30 +144,34 @@ namespace Appli_CocoriCO2
 
         private void saveData()
         {
-            Condition c = MW.conditionData.Last<Condition>();
-            if (c.lastUpdated != lastFileWrite)
+            if (MW.ExperimentState)
             {
-                DateTime dt = DateTime.Now;
-                string filePath = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.ToString("yyyy_MM_dd")+".csv";
-                filePath = filePath.Replace('\\', '/');
-
-                saveToFile(filePath, dt);
-                //if (c.lastUpdated.Day != lastFileWrite.Day) ftpTransfer(filePath);
-                if (c.lastUpdated.Hour != lastFileWrite.Hour)// POur tester
+                Condition c = MW.conditionData.Last<Condition>();
+                if (c.lastUpdated != lastFileWrite)
                 {
-                    if (c.lastUpdated.Hour == 0)
+                    DateTime dt = DateTime.Now;
+                    string filePath = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.ToString("yyyy_MM_dd") + ".csv";
+                    filePath = filePath.Replace('\\', '/');
+
+                    saveToFile(filePath, dt);
+                    //if (c.lastUpdated.Day != lastFileWrite.Day) ftpTransfer(filePath);
+                    if (c.lastUpdated.Hour != lastFileWrite.Hour)// POur tester
                     {
-                        string fp = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.AddDays(-1).ToString("yyyy_MM_dd") + ".csv";
-                        ftpTransfer(fp);
+                        if (c.lastUpdated.Hour == 0)
+                        {
+                            string fp = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.AddDays(-1).ToString("yyyy_MM_dd") + ".csv";
+                            ftpTransfer(fp);
+                        }
+                        else
+                        {
+                            ftpTransfer(filePath);
+                        }
+                        lastFileWrite = c.lastUpdated;
                     }
-                    else
-                    {
-                        ftpTransfer(filePath);
-                    }
-                    lastFileWrite = c.lastUpdated;
+                    MW.conditionData.Clear();
                 }
-                MW.conditionData.Clear();
             }
+            
         }
 
         private void writeDataPoint(int conditionId, int MesoID, string field, double value, DateTime dt)
@@ -262,7 +266,7 @@ namespace Appli_CocoriCO2
                 {
 
                     data += MW.conditions[i].Meso[j].temperature; data += ";";
-                    data += MW.conditions[i].Meso[j].oxy; data += ";";
+                    data += MW.conditions[i].Meso[j].oxy_pc; data += ";";
                     data += MW.conditions[i].Meso[j].cond; data += ";";
                     data += MW.conditions[i].Meso[j].salinite; data += ";";
                     data += MW.conditions[i].Meso[j].debit; data += ";";

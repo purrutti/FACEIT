@@ -25,6 +25,7 @@ using LiveCharts;
 using LiveCharts.Configurations;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Diagnostics;
 
 namespace Appli_CocoriCO2
 {
@@ -129,7 +130,7 @@ namespace Appli_CocoriCO2
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool ExperimentState = true;
+        public bool ExperimentState = true;
         
 
 
@@ -156,52 +157,57 @@ namespace Appli_CocoriCO2
         public string[] Labels = new[] {"0"};
         public MainWindow()
         {
-            InitializeComponent();
-            var cts = new CancellationTokenSource();
-
-            btn_stop.Content = "STOP";
-            statusLabel2.Text = "Experiment is running normally";
-            statusLabel2.Background = Brushes.Green;
-            statusLabel2.Foreground = Brushes.White;
-
-            autoReco = false;
-            conditions = new ObservableCollection<Condition>();
-            conditionData = new ObservableCollection<Condition>();
-            for (int i = 0; i < 4; i++)
+            
+            if (Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1)
             {
-                Condition c = new Condition();
-                c.condID = i;
-                c.regulSalinite = new Regul();
-                c.regulTemp = new Regul();
-                c.Meso = new Mesocosme[3];
-                for (int j = 0; j < 3; j++) c.Meso[j] = new Mesocosme();
-                conditions.Add(c);
+                MessageBox.Show("FACE-IT Application is already running. Only one instance of this application is allowed");
+                System.Windows.Application.Current.Shutdown();
             }
+            else
+            {
+                InitializeComponent();
+                var cts = new CancellationTokenSource();
 
+                btn_stop.Content = "STOP";
+                statusLabel2.Text = "Experiment is running normally";
+                statusLabel2.Background = Brushes.Green;
+                statusLabel2.Foreground = Brushes.White;
 
+                autoReco = false;
+                conditions = new ObservableCollection<Condition>();
+                conditionData = new ObservableCollection<Condition>();
+                for (int i = 0; i < 4; i++)
+                {
+                    Condition c = new Condition();
+                    c.condID = i;
+                    c.regulSalinite = new Regul();
+                    c.regulTemp = new Regul();
+                    c.Meso = new Mesocosme[3];
+                    for (int j = 0; j < 3; j++) c.Meso[j] = new Mesocosme();
+                    conditions.Add(c);
+                }
 
-            expSettingsWindow = new ExpSettingsWindow();
-            comDebugWindow = new ComDebugWindow();
-            calibrationWindow = new Calibration();
+                expSettingsWindow = new ExpSettingsWindow();
+                comDebugWindow = new ComDebugWindow();
+                calibrationWindow = new Calibration();
 
+                InitializeAsync();
+                InitializeAsyncSendParams();
+                InitializeAsyncGetInSituData();
 
+                comDebugWindow.lv_data.ItemsSource = conditionData;
+                ci = new CultureInfo("en-US");
+                ci.NumberFormat.NumberDecimalDigits = 2;
+                ci.NumberFormat.NumberDecimalSeparator = ".";
+                ci.NumberFormat.NumberGroupSeparator = " ";
+                Thread.CurrentThread.CurrentCulture = ci;
+                Thread.CurrentThread.CurrentUICulture = ci;
+                CultureInfo.DefaultThreadCurrentCulture = ci;
+                CultureInfo.DefaultThreadCurrentUICulture = ci;
 
-
-            InitializeAsync();
-            InitializeAsyncSendParams();
-            InitializeAsyncGetInSituData();
-
-            comDebugWindow.lv_data.ItemsSource = conditionData;
-            ci = new CultureInfo("en-US");
-            ci.NumberFormat.NumberDecimalDigits = 2;
-            ci.NumberFormat.NumberDecimalSeparator = ".";
-            ci.NumberFormat.NumberGroupSeparator = " ";
-            Thread.CurrentThread.CurrentCulture = ci;
-            Thread.CurrentThread.CurrentUICulture = ci;
-            CultureInfo.DefaultThreadCurrentCulture = ci;
-            CultureInfo.DefaultThreadCurrentUICulture = ci;
-
-            getInSituData();
+                getInSituData();
+            }
+            
         }
 
 
@@ -821,9 +827,9 @@ namespace Appli_CocoriCO2
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             Properties.Settings.Default.Save();
-            comDebugWindow.Close();
-            expSettingsWindow.Close();
-            calibrationWindow.Close();
+            //comDebugWindow.Close();
+            //expSettingsWindow.Close();
+            //calibrationWindow.Close();
             System.Windows.Application.Current.Shutdown();
         }
 
@@ -878,7 +884,7 @@ namespace Appli_CocoriCO2
             else
             {
                 btn_stop.Content = "START";
-                statusLabel2.Text = "Experiment is stopped. No regulation / No data logging";
+                statusLabel2.Text = "Experiment is stopped: General valves are closed, Data logging is stopped";
                 statusLabel2.Background = Brushes.Red;
                 statusLabel2.Foreground = Brushes.Black;
 

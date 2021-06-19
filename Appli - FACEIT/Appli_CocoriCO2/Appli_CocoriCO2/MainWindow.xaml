@@ -7,11 +7,15 @@
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         mc:Ignorable="d"
         Title="FACE-IT Mesocosm App" Height="949.5" Width="1696.5" Closing="Window_Closing" MinHeight="822"
-        MinWidth="1330.5" Icon="snowman.png">
+        MinWidth="1330.5" Icon="C:\Users\pierr\Dropbox\Pierre\CNRS\repos\FACEIT\Appli - FACEIT\Appli_CocoriCO2\Appli_CocoriCO2\polar-bear.png">
 
     <Grid HorizontalAlignment="Stretch" Margin="10,10,10,0" Width="Auto">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="55*"/>
+            <ColumnDefinition Width="362*"/>
+        </Grid.ColumnDefinitions>
 
-        <Menu Height="20" Margin="0,0,0,0" VerticalAlignment="Top">
+        <Menu Height="20" Margin="0,0,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <MenuItem Header="_File">
                 <MenuItem Name="Connect_btn" Header="_Connect" Click="Connect_Click" />
                 <MenuItem Name="Exit" Header="_Exit" Click="Exit_Click" />
@@ -31,18 +35,18 @@
             <MenuItem Header="_About">
             </MenuItem>
         </Menu>
-        <StatusBar x:Name="statusBar" Height="26" VerticalAlignment="Bottom">
+        <StatusBar x:Name="statusBar" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2">
             <StatusBarItem Height="24" VerticalAlignment="Bottom" Width="214" HorizontalAlignment="Left">
                 <TextBlock Name="statusLabel" />
             </StatusBarItem>
             <StatusBarItem Height="24" VerticalAlignment="Bottom" Width="516" HorizontalAlignment="Left">
                 <TextBlock x:Name="statusLabel1" />
             </StatusBarItem>
-            <StatusBarItem Height="26" VerticalAlignment="Bottom" Width="374" HorizontalAlignment="Right">
+            <StatusBarItem Height="26" VerticalAlignment="Bottom" Width="516" HorizontalAlignment="Right">
                 <TextBlock x:Name="statusLabel2" />
             </StatusBarItem>
         </StatusBar>
-        <Canvas Margin="0,50,0,26">
+        <Canvas Margin="0,50,0,26" Grid.ColumnSpan="2">
             <Image Source="background.png" Height="725" Width="1292" Canvas.Top="68"/>
             <Rectangle Canvas.Left="251" Canvas.Top="146" Width="115" Height="126" Fill="Transparent" Cursor="Hand" MouseDown="Ellipse_MouseDown_1"/>
             <Label x:Name="label_C0M0_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="444" Canvas.Top="68" />
@@ -136,7 +140,7 @@
             <Label x:Name="label_IS_Salinity" Content="Salinity: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="506" />
             <Label x:Name="label_IS_Time" Content="Time: ..." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="526" />
             <Label Content="M0" Height="37" Canvas.Left="546" Canvas.Top="26" Width="48" FontSize="24" FontWeight="Bold"/>
-            <Label Content="M1" Height="37" Canvas.Left="858" Canvas.Top="26" Width="48" FontSize="24" FontWeight="Bold"/>
+            <Label Content="M1" Height="37" Canvas.Left="872" Canvas.Top="26" Width="48" FontSize="24" FontWeight="Bold"/>
             <Label Content="M2" Height="37" Canvas.Left="1197" Canvas.Top="26" Width="48" FontSize="24" FontWeight="Bold"/>
             <Label Content="C0" Height="37" Canvas.Left="371" Canvas.Top="131" Width="48" FontSize="24" FontWeight="Bold"/>
             <Label Content="C1" Height="37" Canvas.Left="371" Canvas.Top="336" Width="48" FontSize="24" FontWeight="Bold"/>
