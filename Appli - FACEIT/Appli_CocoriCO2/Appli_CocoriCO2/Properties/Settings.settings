@@ -30,7 +30,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="dataFileBasePath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:/CocoriCO2/FACEIT/</Value>
+      <Value Profile="(Default)">C:/Users/FACE-IT/Desktop/FACEIT/Data</Value>
     </Setting>
     <Setting Name="ftpUsername" Type="System.String" Scope="User">
       <Value Profile="(Default)">cocorico2</Value>
@@ -39,7 +39,7 @@
       <Value Profile="(Default)">C0q2Ch0c@2021</Value>
     </Setting>
     <Setting Name="ftpDir" Type="System.String" Scope="User">
-      <Value Profile="(Default)">ftp.obs-vlfr.fr/FACEIT/</Value>
+      <Value Profile="(Default)">ftp.obs-vlfr.fr/FACE-IT/Data_FACE-IT/</Value>
     </Setting>
     <Setting Name="InfluxDBWebpage" Type="System.String" Scope="User">
       <Value Profile="(Default)">http://localhost:8086/orgs/de9be6257a0a3477/dashboards/077b31f0db0d2000?lower=now%28%29%20-%207d</Value>
@@ -52,6 +52,15 @@
     </Setting>
     <Setting Name="InfluxDBOrg" Type="System.String" Scope="User">
       <Value Profile="(Default)">CNRS</Value>
+    </Setting>
+    <Setting Name="ForceInSituTemp" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ForceInSituSal" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ForceInSituCheckbox" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

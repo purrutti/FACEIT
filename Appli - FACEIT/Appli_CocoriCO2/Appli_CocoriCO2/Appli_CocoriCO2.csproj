@@ -162,11 +162,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Calibration.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ComDebugWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ExpSettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Force.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -181,11 +189,17 @@
     <Compile Include="AppSettingsWindow.xaml.cs">
       <DependentUpon>AppSettingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Calibration.xaml.cs">
+      <DependentUpon>Calibration.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ComDebugWindow.xaml.cs">
       <DependentUpon>ComDebugWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ExpSettingsWindow.xaml.cs">
       <DependentUpon>ExpSettingsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Force.xaml.cs">
+      <DependentUpon>Force.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -221,6 +235,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="background.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="logoFACEIT.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="snowman.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="polar-bear.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

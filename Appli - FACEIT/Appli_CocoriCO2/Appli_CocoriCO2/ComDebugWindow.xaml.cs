@@ -81,19 +81,10 @@ namespace Appli_CocoriCO2
             if (tb2.Text.Length > 0)
             {
                 ReadData(tb2.Text);
-                // tb2.Text = "";
-                Sort("lastUpdated", ListSortDirection.Descending);
             }
         }
 
-        private void Sort(string sortBy, ListSortDirection direction)
-        {
-            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(lv_data.ItemsSource);
-            view.SortDescriptions.Clear();
-            SortDescription sd = new SortDescription(sortBy, direction);
-            view.SortDescriptions.Add(sd);
-            view.Refresh();
-        }
+
 
         public void ReadData(string data)
         {
@@ -120,8 +111,8 @@ namespace Appli_CocoriCO2
                 }
                 else if (c.command == 3 && (c.Meso != null))
                 {
-                    MW.conditions[c.condID].regulSalinite.consigne = c.regulSalinite.consigne;
-                    MW.conditions[c.condID].regulTemp.consigne = c.regulTemp.consigne;
+                    //MW.conditions[c.condID].regulSalinite.consigne = c.regulSalinite.consigne;
+                    //MW.conditions[c.condID].regulTemp.consigne = c.regulTemp.consigne;
                     for (int i = 0; i < 3; i++) MW.conditions[c.condID].Meso[i] = c.Meso[i];
                 }
                 else if (c.command == 6)
@@ -131,7 +122,12 @@ namespace Appli_CocoriCO2
                     MW.statusLabel1.Text = "Last updated: " + MW.masterData.lastUpdated.ToString() + " UTC";
                 }
 
-                MW.conditions[0].regulTemp.consigne = MW.inSituData.temperature;
+                if (!(bool)MW.ForceInSituWindow.checkBox_ForceInSitu.IsChecked) MW.conditions[0].regulTemp.consigne = MW.inSituData.temperature;
+                else {
+                    double temp;
+                    Double.TryParse(MW.ForceInSituWindow.tb_temperature.Text, out temp);
+                    MW.conditions[0].regulTemp.consigne = temp;
+                }
                 MW.DisplayData(c.command);
 
 
@@ -148,21 +144,32 @@ namespace Appli_CocoriCO2
             if (c.lastUpdated != lastFileWrite)
             {
                 DateTime dt = DateTime.Now;
-                string filePath = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.ToString("yyyy_MM_dd")+".csv"; 
+                string filePath = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.ToString("yyyy_MM_dd") + ".csv";
+                filePath = filePath.Replace('\\', '/');
 
                 saveToFile(filePath, dt);
                 //if (c.lastUpdated.Day != lastFileWrite.Day) ftpTransfer(filePath);
-                if (c.lastUpdated.Minute != lastFileWrite.Minute)// POur tester
+                if (c.lastUpdated.Hour != lastFileWrite.Hour)// POur tester
                 {
-                    ftpTransfer(filePath);
+                    if (c.lastUpdated.Hour == 0)
+                    {
+                        string fp = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.AddDays(-1).ToString("yyyy_MM_dd") + ".csv";
+                        ftpTransfer(fp);
+                    }
+                    else
+                    {
+                        ftpTransfer(filePath);
+                    }
                     lastFileWrite = c.lastUpdated;
                 }
+                MW.conditionData.Clear();
             }
+            
         }
 
         private void writeDataPoint(int conditionId, int MesoID, string field, double value, DateTime dt)
         {
-            /*try
+            try
             {
                 string tag;
                 if (MesoID == -1) tag = "AmbientData";
@@ -180,8 +187,8 @@ namespace Appli_CocoriCO2
                 }
             }catch(Exception e)
             {
-
-            }*/
+                MessageBox.Show("Problem With InfluxDB writing data:" + e.Message);
+            }
             
         }
 
@@ -191,7 +198,7 @@ namespace Appli_CocoriCO2
             if (!System.IO.File.Exists(filePath))
             {
                 //Write headers
-                String header = "Time;Ambient_Time;Ambient_salinity;Ambient_Temperature;AmbientWater_Flowrate;ColdWater_Flowrate;HotWater_Flowrate;AmbientWater_Pressure;ColdWater_Pressure;HotWater_Pressure;";
+                String header = "Time;Ambient_Time;Ambient_salinity;Ambient_Temperature;Ambient_Oxygen;AmbientWater_Flowrate;ColdWater_Flowrate;HotWater_Flowrate;AmbientWater_Pressure;ColdWater_Pressure;HotWater_Pressure;";
 
                 for (int i = 0; i< 4; i++)
                 {
@@ -213,7 +220,7 @@ namespace Appli_CocoriCO2
                         header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_PIDoutput_Salinity;";
                     }
                 }
-                header += "\n";
+                header += "incubation;\n";
                 System.IO.File.WriteAllText(filePath, header);
             }
 
@@ -222,6 +229,7 @@ namespace Appli_CocoriCO2
             data += MW.inSituData.time.ToUniversalTime().ToString(); data += ";";
             data += MW.inSituData.salinite.ToString(); data += ";";
             data += MW.inSituData.temperature.ToString(); data += ";";
+            data += MW.inSituData.oxygen.ToString(); data += ";";
 
             data += MW.masterData.debitEA.ToString(); data += ";";
             data += MW.masterData.debitEF.ToString(); data += ";";
@@ -233,9 +241,7 @@ namespace Appli_CocoriCO2
 
             writeDataPoint(0, -1, "Ambient_salinity", MW.inSituData.salinite, dt);
             writeDataPoint(0, -1, "Ambient_Temperature", MW.inSituData.temperature, dt);
-            writeDataPoint(0, -1, "AmbientWater_Flowrate", MW.masterData.debitEA, dt);
-            writeDataPoint(0, -1, "ColdWater_Flowrate", MW.masterData.debitEF, dt);
-            writeDataPoint(0, -1, "HotWater_Flowrate", MW.masterData.debitEC, dt);
+            writeDataPoint(0, -1, "Ambient_Oxygen", MW.inSituData.oxygen, dt);
             writeDataPoint(0, -1, "AmbientWater_Pressure", MW.masterData.pressionEA, dt);
             writeDataPoint(0, -1, "ColdWater_Pressure", MW.masterData.pressionEF, dt);
             writeDataPoint(0, -1, "HotWater_Pressure", MW.masterData.pressionEC, dt);
@@ -252,7 +258,7 @@ namespace Appli_CocoriCO2
                 {
 
                     data += MW.conditions[i].Meso[j].temperature; data += ";";
-                    data += MW.conditions[i].Meso[j].oxy; data += ";";
+                    data += MW.conditions[i].Meso[j].oxy_pc; data += ";";
                     data += MW.conditions[i].Meso[j].cond; data += ";";
                     data += MW.conditions[i].Meso[j].salinite; data += ";";
                     data += MW.conditions[i].Meso[j].debit; data += ";";
@@ -260,7 +266,7 @@ namespace Appli_CocoriCO2
                     data += MW.conditions[i].Meso[j].salSortiePID_pc; data += ";";
 
                     writeDataPoint(i, j, "temperature", MW.conditions[i].Meso[j].temperature, dt);
-                    writeDataPoint(i, j, "oxy", MW.conditions[i].Meso[j].oxy, dt);
+                    writeDataPoint(i, j, "oxy", MW.conditions[i].Meso[j].oxy_pc, dt);
                     writeDataPoint(i, j, "cond", MW.conditions[i].Meso[j].cond, dt);
                     writeDataPoint(i, j, "salinite", MW.conditions[i].Meso[j].salinite, dt);
                     writeDataPoint(i, j, "debit", MW.conditions[i].Meso[j].debit, dt);
@@ -268,7 +274,9 @@ namespace Appli_CocoriCO2
                     writeDataPoint(i, j, "salSortiePID_pc", MW.conditions[i].Meso[j].salSortiePID_pc, dt);
                 }
             }
-            data += "\n";
+            if (MW.ExperimentState) data += "0";
+            else data += "1";
+            data += ";\n";
             System.IO.File.AppendAllText(filePath, data);
         }
 

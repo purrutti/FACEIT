@@ -30,8 +30,8 @@ public:
     uint16_t dataCalValidation[16];
     modbus_t queryCalValidation;*/
 
-    uint16_t calibrationAddresses[12];
-    uint16_t validationAddresses[6];
+    //uint16_t calibrationAddresses[12];
+    //uint16_t validationAddresses[6];
     ModbusSensor() {}
 
     ModbusSensor(uint8_t slaveAddress, Modbus *m) {
@@ -96,8 +96,8 @@ public:
         702: validation calibration param 4
         718: validation calibration param 5
         */
-        for (int i = 0; i < 12; i++) calibrationAddresses[i] = 512 + 2 * i;
-        for (int i = 0; i < 6; i++) validationAddresses[i] = 638 + 16 * i;
+        //for (int i = 0; i < 12; i++) calibrationAddresses[i] = 512 + 2 * i;
+        //for (int i = 0; i < 6; i++) validationAddresses[i] = 638 + 16 * i;
     }
     
 
@@ -119,8 +119,8 @@ public:
         setQuery(3, 83, 10);
         data[0] = 5;
     }
-    void setQueryCalibration() {
-        setQuery(16, 512, 2);
+    void setQueryCalibration(int offset) {
+        setQuery(16, offset, 2);
     }
     void setQueryCalValidation() {
         setQuery(16, 638, 16);
@@ -225,19 +225,49 @@ public:
 
     bool calibrateCoeff(float value, int offset)
     {
-        setQueryCalibration();
-        query.u16RegAdd = offset;
+        setQueryCalibration(offset);
         u.fval = value;
         data[0] = u.b[1];
         data[1] = u.b[0];
+
+        Serial.println("calibfrate coeff");
+        Serial.print("sensor address:"); Serial.println(query.u8id);
+        Serial.print("Offset:"); Serial.println(query.u16RegAdd);
+        Serial.print("coils number:"); Serial.println(query.u16CoilsNo);
+        Serial.print("function:"); Serial.println(query.u8fct);
+
         if (!querySent) {
             master->query(query);
             querySent = true;
+            Serial.println("query sent");
         }
         else {
             master->poll();
             if (master->getState() == COM_IDLE) {
                 querySent = false;
+                Serial.println("query OK");
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    bool factoryReset()
+    {
+        Serial.println("factory reset");
+        setQuery(16, 2, 1);
+        data[0] = 31;
+
+        if (!querySent) {
+            master->query(query);
+            querySent = true;
+            Serial.println("query sent");
+        }
+        else {
+            master->poll();
+            if (master->getState() == COM_IDLE) {
+                querySent = false;
+                Serial.println("query OK");
                 return 1;
             }
         }
@@ -247,7 +277,7 @@ public:
     bool validateCalibration(int offset)
     {
         setQueryCalValidation();
-        query.u16RegAdd = offset;
+        setQuery(16, offset, 16);
         for (int i = 0; i < 16; i++) data[i] = 0;
         data[0] = 'P';
         data[1] = 'i';
@@ -265,11 +295,14 @@ public:
         if (!querySent) {
             master->query(query);
             querySent = true;
+            Serial.println("query sent");
         }
         else {
             master->poll();
             if (master->getState() == COM_IDLE) {
                 querySent = false;
+                
+                for (int i = 0; i < 16; i++) data[i] = 0;
                 return 1;
             }
         }

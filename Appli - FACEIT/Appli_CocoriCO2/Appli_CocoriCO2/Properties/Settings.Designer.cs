@@ -12,7 +12,7 @@ namespace Appli_CocoriCO2.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.10.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -133,7 +133,7 @@ namespace Appli_CocoriCO2.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:/CocoriCO2/FACEIT/")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Users/FACE-IT/Desktop/FACEIT/Data")]
         public string dataFileBasePath {
             get {
                 return ((string)(this["dataFileBasePath"]));
@@ -169,7 +169,7 @@ namespace Appli_CocoriCO2.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("ftp.obs-vlfr.fr/FACEIT/")]
+        [global::System.Configuration.DefaultSettingValueAttribute("ftp.obs-vlfr.fr/FACE-IT/Data_FACE-IT/")]
         public string ftpDir {
             get {
                 return ((string)(this["ftpDir"]));
@@ -226,6 +226,42 @@ namespace Appli_CocoriCO2.Properties {
             }
             set {
                 this["InfluxDBOrg"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ForceInSituTemp {
+            get {
+                return ((string)(this["ForceInSituTemp"]));
+            }
+            set {
+                this["ForceInSituTemp"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ForceInSituSal {
+            get {
+                return ((string)(this["ForceInSituSal"]));
+            }
+            set {
+                this["ForceInSituSal"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ForceInSituCheckbox {
+            get {
+                return ((bool)(this["ForceInSituCheckbox"]));
+            }
+            set {
+                this["ForceInSituCheckbox"] = value;
             }
         }
     }

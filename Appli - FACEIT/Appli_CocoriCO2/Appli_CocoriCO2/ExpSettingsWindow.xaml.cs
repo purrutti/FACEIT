@@ -89,7 +89,7 @@ namespace Appli_CocoriCO2
             if (Double.TryParse(tb_Temp_Kd.Text, out dTemp)) c.regulTemp.Kd = dTemp;
             if (Double.TryParse(tb_dT_setPoint.Text, out dTemp)) c.regulTemp.offset = dTemp;
 
-            c.regulTemp.autorisationForcage = (bool)checkBox_Cond_Override.IsChecked;
+            c.regulTemp.autorisationForcage = (bool)checkBox_Temp_Override.IsChecked;
 
             /*
              * {"command":2,"condID":0,"time":"1611595972","regulTemp":{"consigne":0,"Kp":0,"Ki":0,"Kd":0},"regulCond":{"consigne":0,"Kp":0,"Ki":0,"Kd":0}}
@@ -110,23 +110,23 @@ namespace Appli_CocoriCO2
         {
             string msg = "{command:2,condID:" + c.condID + ",senderID:4,";
 
-            msg += "\"regulTemp\":{";
-            msg += "\"offset\":" + c.regulTemp.offset.ToString() + ",";
-            msg += "\"consigne\":" + c.regulTemp.consigne.ToString() + ",";
+            msg += "\"regulT\":{";
+            msg += "\"offset\":" + string.Format(ci, "{0:0.00}", c.regulTemp.offset) + ",";
+            msg += "\"cons\":" + string.Format(ci, "{0:0.00}", c.regulTemp.consigne) + ",";
             msg += "\"Kp\":" + c.regulTemp.Kp.ToString() + ",";
             msg += "\"Ki\":" + c.regulTemp.Ki.ToString() + ",";
             msg += "\"Kd\":" + c.regulTemp.Kd.ToString() + ",";
-            msg += "\"consigneForcage\":" + c.regulTemp.consigneForcage + ",";
-            msg += "\"autorisationForcage\":\"" + c.regulTemp.autorisationForcage + "\"},";
+            msg += "\"consForcage\":" + c.regulTemp.consigneForcage + ",";
+            msg += "\"autForcage\":\"" + c.regulTemp.autorisationForcage + "\"},";
 
 
-            msg += "\"regulSalinite\":{\"offset\":" + c.regulSalinite.offset.ToString() + ",";
-            msg += "\"consigne\":" + c.regulSalinite.consigne.ToString() + ",";
+            msg += "\"regulS\":{\"offset\":" + string.Format(ci, "{0:0.00}", c.regulSalinite.offset) + ",";
+            msg += "\"cons\":" + string.Format(ci, "{0:0.00}", c.regulSalinite.consigne) + ",";
             msg += "\"Kp\":" + c.regulSalinite.Kp.ToString() + ",";
             msg += "\"Ki\":" + c.regulSalinite.Ki.ToString() + ",";
             msg += "\"Kd\":" + c.regulSalinite.Kd.ToString() + ",";
-            msg += "\"consigneForcage\":" + c.regulSalinite.consigneForcage + ",";
-            msg += "\"autorisationForcage\":\"" + c.regulSalinite.autorisationForcage + "\"}";
+            msg += "\"consForcage\":" + c.regulSalinite.consigneForcage + ",";
+            msg += "\"autForcage\":\"" + c.regulSalinite.autorisationForcage + "\"}";
 
             msg += "}";
 
@@ -208,8 +208,8 @@ namespace Appli_CocoriCO2
             int condID = comboBox_Condition.SelectedIndex;
             if (condID == 0)
             {
-                tb_dCond_setPoint.Text = MW.conditions[condID].regulSalinite.offset.ToString(ci);
-                tb_Cond_setPoint.Text = MW.conditions[condID].regulSalinite.consigne.ToString(ci);
+                tb_dCond_setPoint.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulSalinite.offset);
+                tb_Cond_setPoint.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulSalinite.consigne);
             }
             else
             {
@@ -230,22 +230,22 @@ namespace Appli_CocoriCO2
                 }
                 calculConsignes(condID);
 
-                tb_dCond_setPoint.Text = MW.conditions[condID].regulSalinite.offset.ToString(ci);
-                tb_Cond_setPoint.Text = MW.conditions[condID].regulSalinite.consigne.ToString(ci);
+                tb_dCond_setPoint.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulSalinite.offset);
+                tb_Cond_setPoint.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulSalinite.consigne);
             }
             
-            tb_Cond_consigneForcage.Text = MW.conditions[condID].regulSalinite.consigneForcage.ToString(ci);
-            tb_Cond_Kp.Text = MW.conditions[condID].regulSalinite.Kp.ToString(ci);
-            tb_Cond_Ki.Text = MW.conditions[condID].regulSalinite.Ki.ToString(ci);
-            tb_Cond_Kd.Text = MW.conditions[condID].regulSalinite.Kd.ToString(ci);
+            tb_Cond_consigneForcage.Text = string.Format(ci, "{0:0}", MW.conditions[condID].regulSalinite.consigneForcage);
+            tb_Cond_Kp.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulSalinite.Kp);
+            tb_Cond_Ki.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulSalinite.Ki);
+            tb_Cond_Kd.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulSalinite.Kd);
             checkBox_Cond_Override.IsChecked = MW.conditions[condID].regulSalinite.autorisationForcage;
 
-            tb_dT_setPoint.Text = MW.conditions[condID].regulTemp.offset.ToString(ci);
-            tb_Temp_setPoint.Text = MW.conditions[condID].regulTemp.consigne.ToString(ci);
-            tb_Temp_consigneForcage.Text = MW.conditions[condID].regulTemp.consigneForcage.ToString(ci);
-            tb_Temp_Kp.Text = MW.conditions[condID].regulTemp.Kp.ToString(ci);
-            tb_Temp_Ki.Text = MW.conditions[condID].regulTemp.Ki.ToString(ci);
-            tb_Temp_Kd.Text = MW.conditions[condID].regulTemp.Kd.ToString(ci);
+            tb_dT_setPoint.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulTemp.offset);
+            tb_Temp_setPoint.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulTemp.consigne);
+            tb_Temp_consigneForcage.Text = string.Format(ci, "{0:0}", MW.conditions[condID].regulTemp.consigneForcage);
+            tb_Temp_Kp.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulTemp.Kp);
+            tb_Temp_Ki.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulTemp.Ki);
+            tb_Temp_Kd.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulTemp.Kd);
             checkBox_Temp_Override.IsChecked = MW.conditions[condID].regulTemp.autorisationForcage;
         }
 
@@ -281,13 +281,35 @@ namespace Appli_CocoriCO2
             for (int i = 0; i < 3; i++)
             {
                 meanTemp += MW.conditions[0].Meso[i].temperature / 3;
-                meanSal += MW.conditions[0].Meso[i].cond / 3;
+                meanSal += MW.conditions[0].Meso[i].salinite / 3;
             }
-            MW.conditions[condID].regulSalinite.offset = a * meanTemp + b;
-            MW.conditions[condID].regulSalinite.consigne = MW.conditions[condID].regulSalinite.offset + meanSal;
 
-            if (condID == 0) MW.conditions[condID].regulTemp.consigne = MW.inSituData.temperature;
-            else MW.conditions[condID].regulTemp.consigne = MW.conditions[condID].regulTemp.offset + meanTemp;
+            if (!(bool)MW.ForceInSituWindow.checkBox_ForceInSitu.IsChecked)
+            {
+                MW.conditions[condID].regulSalinite.offset = a * MW.inSituData.temperature + b;
+                if (condID != 0) MW.conditions[condID].regulSalinite.consigne = MW.conditions[condID].regulSalinite.offset + MW.inSituData.salinite;
+                if (condID == 0) MW.conditions[condID].regulTemp.consigne = MW.inSituData.temperature;
+                else MW.conditions[condID].regulTemp.consigne = MW.conditions[condID].regulTemp.offset + MW.inSituData.temperature;
+            }
+            else
+            {
+                double temp, salinity;
+                Double.TryParse(MW.ForceInSituWindow.tb_temperature.Text, out temp);
+                Double.TryParse(MW.ForceInSituWindow.tb_salinity.Text, out salinity);
+                MW.conditions[condID].regulSalinite.offset = a * temp + b;
+                if (condID != 0) MW.conditions[condID].regulSalinite.consigne = MW.conditions[condID].regulSalinite.offset + salinity;
+                if (condID == 0) MW.conditions[condID].regulTemp.consigne = temp;
+                else MW.conditions[condID].regulTemp.consigne = MW.conditions[condID].regulTemp.offset + temp;
+            }
+            //MW.conditions[condID].regulSalinite.offset = a * meanTemp + b;
+            
+            //if (condID != 0) MW.conditions[condID].regulSalinite.consigne = MW.conditions[condID].regulSalinite.offset + meanSal;
+            
+
+           // if (condID == 0) MW.conditions[condID].regulTemp.consigne = MW.inSituData.temperature;
+            //else MW.conditions[condID].regulTemp.consigne = MW.conditions[condID].regulTemp.offset + meanTemp;
+
+           
         }
 
         private void btn_UpdateDeltaCond_Click(object sender, RoutedEventArgs e)

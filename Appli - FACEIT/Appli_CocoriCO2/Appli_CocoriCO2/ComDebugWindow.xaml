@@ -5,35 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Appli_CocoriCO2"
         mc:Ignorable="d"
-        Title="ComDebugWindow" Height="450" Width="800" Closing="Window_Closing">
+        Title="Communication Debug" Height="201.639" Width="991.803" Closing="Window_Closing">
     <Grid>
-        <ListView Margin="10,59,10,182" x:Name="lv_data" >
-            <ListView.View>
-                <GridView>
-
-                    <GridViewColumn Header="lastUpdated" Width="100" DisplayMemberBinding="{Binding lastUpdated}" />
-                    <GridViewColumn Header="condID" Width="100" DisplayMemberBinding="{Binding condID}" />
-                    <GridViewColumn Header="temperature" Width="100" DisplayMemberBinding="{Binding temperature}" />
-                    <GridViewColumn Header="pH" Width="100" DisplayMemberBinding="{Binding pH}" />
-                    <GridViewColumn Header="Meso 1 temp" Width="100" DisplayMemberBinding="{Binding Meso[0].temperature}" />
-                    <GridViewColumn Header="Meso 1 pH" Width="100" DisplayMemberBinding="{Binding Meso[0].pH}" />
-                    <GridViewColumn Header="Meso 1 debit" Width="100" DisplayMemberBinding="{Binding Meso[0].debit}" />
-                    <GridViewColumn Header="Meso 2 temp" Width="100" DisplayMemberBinding="{Binding Meso[1].temperature}" />
-                    <GridViewColumn Header="Meso 2 pH" Width="100" DisplayMemberBinding="{Binding Meso[1].pH}" />
-                    <GridViewColumn Header="Meso 2 debit" Width="100" DisplayMemberBinding="{Binding Meso[1].debit}" />
-                    <GridViewColumn Header="Meso 3 temp" Width="100" DisplayMemberBinding="{Binding Meso[2].temperature}" />
-                    <GridViewColumn Header="Meso 3 pH" Width="100" DisplayMemberBinding="{Binding Meso[2].pH}" />
-                    <GridViewColumn Header="Meso 3 debit" Width="100" DisplayMemberBinding="{Binding Meso[2].debit}" />
-                    <GridViewColumn Header="RpH setPoint" Width="100" DisplayMemberBinding="{Binding regulpH.consigne}" />
-                    <GridViewColumn Header="RpH command" Width="100" DisplayMemberBinding="{Binding regulpH.sortiePID_pc}" />
-                    <GridViewColumn Header="Rtemp setPoint" Width="100" DisplayMemberBinding="{Binding regulTemp.consigne}" />
-                    <GridViewColumn Header="Rtemp command" Width="100" DisplayMemberBinding="{Binding regulTemp.sortiePID_pc}" />
-
-                </GridView>
-            </ListView.View>
-        </ListView>
-        <TextBox x:Name="tb1" TextWrapping="Wrap" Text="{}{command:1,condID:0,senderID:4}" Margin="0,0,490,48" Height="26" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="292"/>
+        <TextBox x:Name="tb1" TextWrapping="Wrap" Text="{}{command:1,condID:0,senderID:4}" Margin="10,0,0,17" Height="115" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="292"/>
         <TextBox x:Name="tb2" TextWrapping="Wrap" Text="" Margin="318,0,10,17" TextChanged="tb2_TextChanged" Height="115" VerticalAlignment="Bottom"/>
+        <Label Content="Request sent:" HorizontalAlignment="Left" Margin="10,8,0,0" VerticalAlignment="Top"/>
+        <Label Content="Response received:" HorizontalAlignment="Left" Margin="318,8,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

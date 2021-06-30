@@ -24,7 +24,7 @@
             <TextBox HorizontalAlignment="Left" Height="20" Margin="1,280,0,0" TextWrapping="Wrap"  x:Name="tb_Cond_Kd" VerticalAlignment="Top" Width="100" Grid.Column="1"/>
             <Label Content="Kd" HorizontalAlignment="Left" Margin="10,277,0,0" VerticalAlignment="Top" Height="25" Width="83"/>
             <ComboBox x:Name="comboBox_Condition" HorizontalAlignment="Left" Margin="10,29,0,0" VerticalAlignment="Top" Width="240" SelectionChanged="comboBox_Condition_SelectionChanged" Grid.ColumnSpan="2">
-                <ComboBoxItem Content="Ambiant Condition"/>
+                <ComboBoxItem Content="Control Condition"/>
                 <ComboBoxItem Content="Condition 1"/>
                 <ComboBoxItem Content="Condition 2"/>
                 <ComboBoxItem Content="Condition 3"/>
