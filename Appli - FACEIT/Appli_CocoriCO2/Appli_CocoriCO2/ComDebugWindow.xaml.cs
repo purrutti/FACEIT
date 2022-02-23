@@ -140,30 +140,38 @@ namespace Appli_CocoriCO2
 
         private void saveData()
         {
-            Condition c = MW.conditionData.Last<Condition>();
-            if (c.lastUpdated != lastFileWrite)
+            try
             {
-                DateTime dt = DateTime.Now;
-                string filePath = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.ToString("yyyy_MM_dd") + ".csv";
-                filePath = filePath.Replace('\\', '/');
-
-                saveToFile(filePath, dt);
-                //if (c.lastUpdated.Day != lastFileWrite.Day) ftpTransfer(filePath);
-                if (c.lastUpdated.Hour != lastFileWrite.Hour)// POur tester
+                Condition c = MW.conditionData.Last<Condition>();
+                if (c.lastUpdated != lastFileWrite)
                 {
-                    if (c.lastUpdated.Hour == 0)
+                    DateTime dt = DateTime.Now;
+                    string filePath = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.ToString("yyyy_MM_dd") + ".csv";
+                    filePath = filePath.Replace('\\', '/');
+
+                    saveToFile(filePath, dt);
+                    //if (c.lastUpdated.Day != lastFileWrite.Day) ftpTransfer(filePath);
+                    if (c.lastUpdated.Hour != lastFileWrite.Hour)// POur tester
                     {
-                        string fp = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.AddDays(-1).ToString("yyyy_MM_dd") + ".csv";
-                        ftpTransfer(fp);
+                        if (c.lastUpdated.Hour == 0)
+                        {
+                            string fp = Properties.Settings.Default["dataFileBasePath"].ToString() + "_" + dt.AddDays(-1).ToString("yyyy_MM_dd") + ".csv";
+                            ftpTransfer(fp);
+                        }
+                        else
+                        {
+                            ftpTransfer(filePath);
+                        }
+                        lastFileWrite = c.lastUpdated;
                     }
-                    else
-                    {
-                        ftpTransfer(filePath);
-                    }
-                    lastFileWrite = c.lastUpdated;
+                    MW.conditionData.Clear();
                 }
-                MW.conditionData.Clear();
             }
+            catch(Exception e)
+            {
+                MessageBox.Show("Problem saving data:" + e.Message);
+            }
+            
             
         }
 
@@ -195,89 +203,99 @@ namespace Appli_CocoriCO2
 
         private void saveToFile(string filePath, DateTime dt)
         {
-            if (!System.IO.File.Exists(filePath))
+            try
             {
-                //Write headers
-                String header = "Time;Ambient_Time;Ambient_salinity;Ambient_Temperature;Ambient_Oxygen;AmbientWater_Flowrate;ColdWater_Flowrate;HotWater_Flowrate;AmbientWater_Pressure;ColdWater_Pressure;HotWater_Pressure;";
-
-                for (int i = 0; i< 4; i++)
+                if (!System.IO.File.Exists(filePath))
                 {
-                    header += "Condition["; header += i; header += "]_Temperature_setpoint;";
-                    if (i > 0)
+                    //Write headers
+                    String header = "Time;Ambient_Time;Ambient_salinity;Ambient_Temperature;Ambient_Oxygen;AmbientWater_Flowrate;ColdWater_Flowrate;HotWater_Flowrate;AmbientWater_Pressure;ColdWater_Pressure;HotWater_Pressure;";
+
+                    for (int i = 0; i < 4; i++)
                     {
-                        header += "Condition["; header += i; header += "]_Salinity_setpoint;";
-                    }else{
-                        header += "Condition["; header += i; header += "]_Pressure_setpoint;";
+                        header += "Condition["; header += i; header += "]_Temperature_setpoint;";
+                        if (i > 0)
+                        {
+                            header += "Condition["; header += i; header += "]_Salinity_setpoint;";
+                        }
+                        else
+                        {
+                            header += "Condition["; header += i; header += "]_Pressure_setpoint;";
+                        }
+                        for (int j = 0; j < 3; j++)//pour chaque Mesocosme
+                        {
+                            header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_Temperature;";
+                            header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_oxy;";
+                            header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_cond;";
+                            header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_salinity;";
+                            header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_FlowRate;";
+                            header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_PIDoutput_Temperature;";
+                            header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_PIDoutput_Salinity;";
+                        }
                     }
-                    for (int j = 0; j < 3; j++)//pour chaque Mesocosme
+                    header += "incubation;\n";
+                    System.IO.File.WriteAllText(filePath, header);
+                }
+
+                string data = dt.ToUniversalTime().ToString(); data += ";";
+
+                data += MW.inSituData.time.ToUniversalTime().ToString(); data += ";";
+                data += MW.inSituData.salinite.ToString(); data += ";";
+                data += MW.inSituData.temperature.ToString(); data += ";";
+                data += MW.inSituData.oxygen.ToString(); data += ";";
+
+                data += MW.masterData.debitEA.ToString(); data += ";";
+                data += MW.masterData.debitEF.ToString(); data += ";";
+                data += MW.masterData.debitEC.ToString(); data += ";";
+                data += MW.masterData.pressionEA.ToString(); data += ";";
+                data += MW.masterData.pressionEF.ToString(); data += ";";
+                data += MW.masterData.pressionEC.ToString(); data += ";";
+
+
+                writeDataPoint(0, -1, "Ambient_salinity", MW.inSituData.salinite, dt);
+                writeDataPoint(0, -1, "Ambient_Temperature", MW.inSituData.temperature, dt);
+                writeDataPoint(0, -1, "Ambient_Oxygen", MW.inSituData.oxygen, dt);
+                writeDataPoint(0, -1, "AmbientWater_Pressure", MW.masterData.pressionEA, dt);
+                writeDataPoint(0, -1, "ColdWater_Pressure", MW.masterData.pressionEF, dt);
+                writeDataPoint(0, -1, "HotWater_Pressure", MW.masterData.pressionEC, dt);
+
+                for (int i = 0; i < 4; i++)
+                {
+                    data += MW.conditions[i].regulTemp.consigne; data += ";";
+                    data += MW.conditions[i].regulSalinite.consigne; data += ";";
+
+                    writeDataPoint(i, -1, "Temperature_setpoint", MW.conditions[i].regulTemp.consigne, dt);
+                    writeDataPoint(i, -1, "Salinity_setpoint", MW.conditions[i].regulSalinite.consigne, dt);
+
+                    for (int j = 0; j < 3; j++)
                     {
-                        header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_Temperature;";
-                        header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_oxy;";
-                        header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_cond;";
-                        header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_salinity;";
-                        header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_FlowRate;";
-                        header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_PIDoutput_Temperature;";
-                        header += "Condition["; header += i; header += "]_Meso["; header += j; header += "]_PIDoutput_Salinity;";
+
+                        data += MW.conditions[i].Meso[j].temperature; data += ";";
+                        data += MW.conditions[i].Meso[j].oxy_pc; data += ";";
+                        data += MW.conditions[i].Meso[j].cond; data += ";";
+                        data += MW.conditions[i].Meso[j].salinite; data += ";";
+                        data += MW.conditions[i].Meso[j].debit; data += ";";
+                        data += MW.conditions[i].Meso[j].tempSortiePID_pc; data += ";";
+                        data += MW.conditions[i].Meso[j].salSortiePID_pc; data += ";";
+
+                        writeDataPoint(i, j, "temperature", MW.conditions[i].Meso[j].temperature, dt);
+                        writeDataPoint(i, j, "oxy", MW.conditions[i].Meso[j].oxy_pc, dt);
+                        writeDataPoint(i, j, "cond", MW.conditions[i].Meso[j].cond, dt);
+                        writeDataPoint(i, j, "salinite", MW.conditions[i].Meso[j].salinite, dt);
+                        writeDataPoint(i, j, "debit", MW.conditions[i].Meso[j].debit, dt);
+                        writeDataPoint(i, j, "tempSortiePID_pc", MW.conditions[i].Meso[j].tempSortiePID_pc, dt);
+                        writeDataPoint(i, j, "salSortiePID_pc", MW.conditions[i].Meso[j].salSortiePID_pc, dt);
                     }
                 }
-                header += "incubation;\n";
-                System.IO.File.WriteAllText(filePath, header);
+                if (MW.ExperimentState) data += "0";
+                else data += "1";
+                data += ";\n";
+                System.IO.File.AppendAllText(filePath, data);
             }
-
-            string data = dt.ToUniversalTime().ToString(); data += ";";
-
-            data += MW.inSituData.time.ToUniversalTime().ToString(); data += ";";
-            data += MW.inSituData.salinite.ToString(); data += ";";
-            data += MW.inSituData.temperature.ToString(); data += ";";
-            data += MW.inSituData.oxygen.ToString(); data += ";";
-
-            data += MW.masterData.debitEA.ToString(); data += ";";
-            data += MW.masterData.debitEF.ToString(); data += ";";
-            data += MW.masterData.debitEC.ToString(); data += ";";
-            data += MW.masterData.pressionEA.ToString(); data += ";";
-            data += MW.masterData.pressionEF.ToString(); data += ";";
-            data += MW.masterData.pressionEC.ToString(); data += ";";
-
-
-            writeDataPoint(0, -1, "Ambient_salinity", MW.inSituData.salinite, dt);
-            writeDataPoint(0, -1, "Ambient_Temperature", MW.inSituData.temperature, dt);
-            writeDataPoint(0, -1, "Ambient_Oxygen", MW.inSituData.oxygen, dt);
-            writeDataPoint(0, -1, "AmbientWater_Pressure", MW.masterData.pressionEA, dt);
-            writeDataPoint(0, -1, "ColdWater_Pressure", MW.masterData.pressionEF, dt);
-            writeDataPoint(0, -1, "HotWater_Pressure", MW.masterData.pressionEC, dt);
-
-            for (int i = 0; i < 4; i++)
+            catch(Exception e)
             {
-                data += MW.conditions[i].regulTemp.consigne; data += ";";
-                data += MW.conditions[i].regulSalinite.consigne; data += ";";
-                
-                writeDataPoint(i, -1, "Temperature_setpoint", MW.conditions[i].regulTemp.consigne, dt);
-                writeDataPoint(i, -1, "Salinity_setpoint", MW.conditions[i].regulSalinite.consigne, dt);
-
-                for (int j = 0; j < 3; j++)
-                {
-
-                    data += MW.conditions[i].Meso[j].temperature; data += ";";
-                    data += MW.conditions[i].Meso[j].oxy_pc; data += ";";
-                    data += MW.conditions[i].Meso[j].cond; data += ";";
-                    data += MW.conditions[i].Meso[j].salinite; data += ";";
-                    data += MW.conditions[i].Meso[j].debit; data += ";";
-                    data += MW.conditions[i].Meso[j].tempSortiePID_pc; data += ";";
-                    data += MW.conditions[i].Meso[j].salSortiePID_pc; data += ";";
-
-                    writeDataPoint(i, j, "temperature", MW.conditions[i].Meso[j].temperature, dt);
-                    writeDataPoint(i, j, "oxy", MW.conditions[i].Meso[j].oxy_pc, dt);
-                    writeDataPoint(i, j, "cond", MW.conditions[i].Meso[j].cond, dt);
-                    writeDataPoint(i, j, "salinite", MW.conditions[i].Meso[j].salinite, dt);
-                    writeDataPoint(i, j, "debit", MW.conditions[i].Meso[j].debit, dt);
-                    writeDataPoint(i, j, "tempSortiePID_pc", MW.conditions[i].Meso[j].tempSortiePID_pc, dt);
-                    writeDataPoint(i, j, "salSortiePID_pc", MW.conditions[i].Meso[j].salSortiePID_pc, dt);
-                }
+                MessageBox.Show("Problem writing data File:" + e.Message);
             }
-            if (MW.ExperimentState) data += "0";
-            else data += "1";
-            data += ";\n";
-            System.IO.File.AppendAllText(filePath, data);
+            
         }
 
         private void ftpTransfer(string fileName)

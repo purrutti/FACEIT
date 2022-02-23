@@ -240,13 +240,19 @@ namespace Appli_CocoriCO2
 
                 double s, t, o;
 
-                double.TryParse(d.ElementAt<string>(1).ToString(), out s);
-                double.TryParse(d.ElementAt<string>(2).ToString(), out t);
-                double.TryParse(d.ElementAt<string>(3).ToString(), out o);
+                bool success = false;
 
-                inSituData.salinite = s;
-                inSituData.temperature = t;
-                inSituData.oxygen = o;
+                success = double.TryParse(d.ElementAt<string>(1).ToString(), out s);
+                success &= double.TryParse(d.ElementAt<string>(2).ToString(), out t);
+                success &= double.TryParse(d.ElementAt<string>(3).ToString(), out o);
+
+                if(success && s>0 && o > 0)
+                {                 
+                    inSituData.salinite = s;
+                    inSituData.temperature = t;
+                    inSituData.oxygen = o;
+                }
+
 
                 label_IS_Time.Content = "Time: " + inSituData.time.ToString("yyyy-MM-dd HH:mm:ss");
                 label_IS_Temp.Content = string.Format(ci, "Temperature: {0:0.00} °C", inSituData.temperature);

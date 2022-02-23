@@ -7,9 +7,9 @@ Author : pierr
 #include <TimeLib.h>
 #include <EEPROMex.h>
 #include <ArduinoJson.h>
-#include "C:\Users\pierr\OneDrive\Documents\Arduino\libraries\cocorico2\Hamilton.h"
-#include "C:\Users\pierr\OneDrive\Documents\Arduino\libraries\cocorico2\Mesocosmes_FACEIT.h"
-#include "C:\Users\pierr\OneDrive\Documents\Arduino\libraries\cocorico2\Condition_FACEIT.h"
+#include "C:\Users\FACE-IT\Desktop\FACEIT\libraries\cocorico2\Hamilton.h"
+#include "C:\Users\FACE-IT\Desktop\FACEIT\libraries\cocorico2\Mesocosmes_FACEIT.h"
+#include "C:\Users\FACE-IT\Desktop\FACEIT\libraries\cocorico2\Condition_FACEIT.h"
 #include <Ethernet.h>
 #include <WebSocketsClient.h>
 #include <RTC.h>
