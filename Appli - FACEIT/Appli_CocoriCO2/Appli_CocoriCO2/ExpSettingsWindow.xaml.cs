@@ -79,7 +79,6 @@ namespace Appli_CocoriCO2
             if (Double.TryParse(tb_Cond_Kp.Text, out dTemp)) c.regulSalinite.Kp = dTemp;
             if (Double.TryParse(tb_Cond_Ki.Text, out dTemp)) c.regulSalinite.Ki = dTemp;
             if (Double.TryParse(tb_Cond_Kd.Text, out dTemp)) c.regulSalinite.Kd = dTemp;
-            if (Double.TryParse(tb_dCond_setPoint.Text, out dTemp)) c.regulSalinite.offset = dTemp;
 
             c.regulTemp = new Regul();
             if (Int32.TryParse(tb_Temp_consigneForcage.Text, out temp)) c.regulTemp.consigneForcage = temp;
@@ -165,41 +164,51 @@ namespace Appli_CocoriCO2
         private void comboBox_Condition_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             load(comboBox_Condition.SelectedIndex);
+            Visibility V = Visibility.Hidden;
+            Visibility V2 = Visibility.Hidden;
             if (comboBox_Condition.SelectedIndex == 0)
             {
+                V = Visibility.Hidden;
+                V2 = Visibility.Visible;
                 tb_Cond_setPoint.IsEnabled = true;
                 label_Cond_title.Content = "Pressure regulation";
                 label_Cond_setPoint.Content = "Pressure setpoint";
-                label_dCond.Visibility = Visibility.Hidden;
-                tb_dCond_setPoint.Visibility = Visibility.Hidden;
-                label_dT.Visibility = Visibility.Hidden;
-                tb_dT_setPoint.Visibility = Visibility.Hidden;
-
-                label_dCond_Formula.Visibility = Visibility.Hidden;
-                label_dCond_Formula_2.Visibility = Visibility.Hidden;
-                tb_dCond_a.Visibility = Visibility.Hidden;
-                tb_dCond_b.Visibility = Visibility.Hidden;
-
-                btn_UpdateDeltaCond.Visibility = Visibility.Hidden;
             }
             else
             {
-                tb_dCond_setPoint.IsEnabled = false;
+                V = Visibility.Visible;
+                V2 = Visibility.Hidden;
                 tb_Cond_setPoint.IsEnabled = false;
-                label_Cond_title.Content = "Salinity regulation";
-                label_Cond_setPoint.Content = "Salinity setpoint";
-                label_dCond.Visibility = Visibility.Visible;
-                tb_dCond_setPoint.Visibility = Visibility.Visible;
-                label_dT.Visibility = Visibility.Visible;
-                tb_dT_setPoint.Visibility = Visibility.Visible;
-
-                label_dCond_Formula.Visibility = Visibility.Visible;
-                label_dCond_Formula_2.Visibility = Visibility.Visible;
-                tb_dCond_a.Visibility = Visibility.Visible;
-                tb_dCond_b.Visibility = Visibility.Visible;
-
-                btn_UpdateDeltaCond.Visibility = Visibility.Visible;
             }
+
+            label_dT.Visibility = V;
+            tb_dT_setPoint.Visibility = V;
+
+            label_Temp_title.Visibility = V;
+            label_Temp_setpoint.Visibility = V;
+            label_Temp_Kp.Visibility = V;
+            label_Temp_Ki.Visibility = V;
+            label_Temp_Kd.Visibility = V;
+            checkBox_Temp_Override.Visibility = V;
+            tb_Temp_consigneForcage.Visibility = V;
+            label_pc2.Visibility = V;
+            tb_Temp_setPoint.Visibility = V;
+            tb_Temp_Ki.Visibility = V;
+            tb_Temp_Kp.Visibility = V;
+            tb_Temp_Kd.Visibility = V;
+
+            label_Cond_title.Visibility = V2;
+            label_Cond_setPoint.Visibility = V2;
+            label_Cond_Kp.Visibility = V2;
+            label_Cond_Ki.Visibility = V2;
+            label_Cond_Kd.Visibility = V2;
+            checkBox_Cond_Override.Visibility = V2;
+            tb_Cond_setPoint.Visibility = V2;
+            tb_Cond_Kp.Visibility = V2;
+            tb_Cond_Ki.Visibility = V2;
+            tb_Cond_Kd.Visibility = V2;
+            tb_Cond_consigneForcage.Visibility = V2;
+
             refreshParams();
           }
 
@@ -208,29 +217,12 @@ namespace Appli_CocoriCO2
             int condID = comboBox_Condition.SelectedIndex;
             if (condID == 0)
             {
-                tb_dCond_setPoint.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulSalinite.offset);
                 tb_Cond_setPoint.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulSalinite.consigne);
             }
             else
             {
-                switch (condID)
-                {
-                    case 1:
-                        tb_dCond_a.Text = Properties.Settings.Default["deltaCond_C1_a"].ToString();
-                        tb_dCond_b.Text = Properties.Settings.Default["deltaCond_C1_b"].ToString();
-                        break;
-                    case 2:
-                        tb_dCond_a.Text = Properties.Settings.Default["deltaCond_C2_a"].ToString();
-                        tb_dCond_b.Text = Properties.Settings.Default["deltaCond_C2_b"].ToString();
-                        break;
-                    case 3:
-                        tb_dCond_a.Text = Properties.Settings.Default["deltaCond_C3_a"].ToString();
-                        tb_dCond_b.Text = Properties.Settings.Default["deltaCond_C3_b"].ToString();
-                        break;
-                }
                 calculConsignes(condID);
 
-                tb_dCond_setPoint.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulSalinite.offset);
                 tb_Cond_setPoint.Text = string.Format(ci, "{0:0.00}", MW.conditions[condID].regulSalinite.consigne);
             }
             
@@ -257,24 +249,6 @@ namespace Appli_CocoriCO2
 
         public void calculConsignes(int condID)
         {
-            double a=0, b=0;
-            switch (condID)
-            {
-                case 1:
-                    Double.TryParse(Properties.Settings.Default["deltaCond_C1_a"].ToString(), NumberStyles.Number, ci, out a);
-                    Double.TryParse(Properties.Settings.Default["deltaCond_C1_b"].ToString(), NumberStyles.Number, ci, out b);
-                    break;
-                case 2:
-                    Double.TryParse(Properties.Settings.Default["deltaCond_C2_a"].ToString(), NumberStyles.Number, ci, out a);
-                    Double.TryParse(Properties.Settings.Default["deltaCond_C2_b"].ToString(), NumberStyles.Number, ci, out b);
-                    break;
-                case 3:
-                    Double.TryParse(Properties.Settings.Default["deltaCond_C3_a"].ToString(), NumberStyles.Number, ci, out a);
-                    Double.TryParse(Properties.Settings.Default["deltaCond_C3_b"].ToString(), NumberStyles.Number, ci, out b);
-                    break;
-            }
-            
-
 
             double meanTemp = 0;
             double meanSal = 0;
@@ -286,18 +260,13 @@ namespace Appli_CocoriCO2
 
             if (!(bool)MW.ForceInSituWindow.checkBox_ForceInSitu.IsChecked)
             {
-                MW.conditions[condID].regulSalinite.offset = a * MW.inSituData.temperature + b;
-                if (condID != 0) MW.conditions[condID].regulSalinite.consigne = MW.conditions[condID].regulSalinite.offset + MW.inSituData.salinite;
                 if (condID == 0) MW.conditions[condID].regulTemp.consigne = MW.inSituData.temperature;
                 else MW.conditions[condID].regulTemp.consigne = MW.conditions[condID].regulTemp.offset + MW.inSituData.temperature;
             }
             else
             {
-                double temp, salinity;
+                double temp;
                 Double.TryParse(MW.ForceInSituWindow.tb_temperature.Text, out temp);
-                Double.TryParse(MW.ForceInSituWindow.tb_salinity.Text, out salinity);
-                MW.conditions[condID].regulSalinite.offset = a * temp + b;
-                if (condID != 0) MW.conditions[condID].regulSalinite.consigne = MW.conditions[condID].regulSalinite.offset + salinity;
                 if (condID == 0) MW.conditions[condID].regulTemp.consigne = temp;
                 else MW.conditions[condID].regulTemp.consigne = MW.conditions[condID].regulTemp.offset + temp;
             }
@@ -312,33 +281,5 @@ namespace Appli_CocoriCO2
            
         }
 
-        private void btn_UpdateDeltaCond_Click(object sender, RoutedEventArgs e)
-        {
-            //TODO:
-            /*
-             * save a et b dans app.config
-             * 
-             */
-            int condID = comboBox_Condition.SelectedIndex;
-            switch (condID)
-            {
-                case 1:
-                    Properties.Settings.Default["deltaCond_C1_a"] = tb_dCond_a.Text;
-                    Properties.Settings.Default["deltaCond_C1_b"] = tb_dCond_b.Text;
-                    break;
-                case 2:
-                    Properties.Settings.Default["deltaCond_C2_a"] = tb_dCond_a.Text;
-                    Properties.Settings.Default["deltaCond_C2_b"] = tb_dCond_b.Text;
-                    break;
-                case 3:
-                    Properties.Settings.Default["deltaCond_C3_a"] = tb_dCond_a.Text;
-                    Properties.Settings.Default["deltaCond_C3_b"] = tb_dCond_b.Text;
-                    break;
-            }
-
-            Properties.Settings.Default.Save();
-
-            refreshParams();
-        }
     }
 }

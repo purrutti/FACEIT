@@ -140,7 +140,7 @@ namespace Appli_CocoriCO2
 
         private void saveData()
         {
-            try
+           try
             {
                 Condition c = MW.conditionData.Last<Condition>();
                 if (c.lastUpdated != lastFileWrite)
@@ -171,7 +171,6 @@ namespace Appli_CocoriCO2
             {
                 MessageBox.Show("Problem saving data:" + e.Message);
             }
-            
             
         }
 
@@ -208,7 +207,7 @@ namespace Appli_CocoriCO2
                 if (!System.IO.File.Exists(filePath))
                 {
                     //Write headers
-                    String header = "Time;Ambient_Time;Ambient_salinity;Ambient_Temperature;Ambient_Oxygen;AmbientWater_Flowrate;ColdWater_Flowrate;HotWater_Flowrate;AmbientWater_Pressure;ColdWater_Pressure;HotWater_Pressure;";
+                    String header = "Time;Ambient_Temperature;AmbientWater_Pressure;HotWater_Pressure;";
 
                     for (int i = 0; i < 4; i++)
                     {
@@ -238,24 +237,13 @@ namespace Appli_CocoriCO2
 
                 string data = dt.ToUniversalTime().ToString(); data += ";";
 
-                data += MW.inSituData.time.ToUniversalTime().ToString(); data += ";";
-                data += MW.inSituData.salinite.ToString(); data += ";";
                 data += MW.inSituData.temperature.ToString(); data += ";";
-                data += MW.inSituData.oxygen.ToString(); data += ";";
-
-                data += MW.masterData.debitEA.ToString(); data += ";";
-                data += MW.masterData.debitEF.ToString(); data += ";";
-                data += MW.masterData.debitEC.ToString(); data += ";";
                 data += MW.masterData.pressionEA.ToString(); data += ";";
-                data += MW.masterData.pressionEF.ToString(); data += ";";
                 data += MW.masterData.pressionEC.ToString(); data += ";";
 
 
-                writeDataPoint(0, -1, "Ambient_salinity", MW.inSituData.salinite, dt);
                 writeDataPoint(0, -1, "Ambient_Temperature", MW.inSituData.temperature, dt);
-                writeDataPoint(0, -1, "Ambient_Oxygen", MW.inSituData.oxygen, dt);
                 writeDataPoint(0, -1, "AmbientWater_Pressure", MW.masterData.pressionEA, dt);
-                writeDataPoint(0, -1, "ColdWater_Pressure", MW.masterData.pressionEF, dt);
                 writeDataPoint(0, -1, "HotWater_Pressure", MW.masterData.pressionEC, dt);
 
                 for (int i = 0; i < 4; i++)

@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:Appli_CocoriCO2"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         mc:Ignorable="d"
-        Title="FACE-IT Mesocosm App" Height="949.5" Width="1696.5" Closing="Window_Closing" MinHeight="822"
-        MinWidth="1330.5" Icon="C:\Users\FACE-IT\Desktop\FACEIT\Appli - FACEIT\Appli_CocoriCO2\Appli_CocoriCO2\polar-bear.png">
+        Title="FACE-IT Mesocosm App" Height="999.5" Width="1696.5" Closing="Window_Closing" MinHeight="822"
+        MinWidth="1330.5">
 
     <Grid HorizontalAlignment="Stretch" Margin="10,10,10,0" Width="Auto">
         <Grid.ColumnDefinitions>
@@ -23,6 +23,7 @@
             <MenuItem Header="_Settings">
                 <MenuItem Name="AppSettings_btn" Header="Application Settings" Click="AppSettings_Click" />
                 <MenuItem Name="ExpSettings_btn" Header="Experiment Settings" Click="ExpSettings_Click" />
+                <MenuItem Name="AlarmsSettings_btn" Header="Alarms Settings" Click="AlarmsSettings_Click" />
             </MenuItem>
             <MenuItem Header="_Maintenance">
                 <MenuItem Name="Calibrate_btn" Header="_Calibrate sensors" Click="Calibrate_btn_Click"/>
@@ -32,6 +33,7 @@
             <MenuItem Header="_Data">
                 <MenuItem Name="Monitoring_btn" Header="_Live Monitoring" Click="Monitoring_btn_Click"/>
                 <MenuItem Name="RData" Header="_Historical Data" Click="RData_btn_Click"/>
+                <MenuItem Name="AlarmsList_btn" Header="Alarms List" Click="AlarmsList_Click" />
             </MenuItem>
             <MenuItem Header="_About">
                 <MenuItem Name="Documentation" Header="_Documentation" Click="Documentation_btn_Click"/>
@@ -49,48 +51,39 @@
             </StatusBarItem>
         </StatusBar>
         <Canvas Margin="0,50,0,26" Grid.ColumnSpan="2">
-            <Image Source="background.png" Height="725" Width="1292" Canvas.Top="68"/>
+            <Image Height="838" Canvas.Left="125" Source="Background3.png" Stretch="Fill" Width="1490" Canvas.Top="2"/>
             <Rectangle Canvas.Left="251" Canvas.Top="146" Width="115" Height="126" Fill="Transparent" Cursor="Hand" MouseDown="Ellipse_MouseDown_1"/>
-            <Label x:Name="label_C0M0_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="444" Canvas.Top="68" />
             <Label x:Name="label_C0M0_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="97" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C0M0_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="131" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C0M0_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="80" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C1_Cond_setpoint" Content="Cond.: ...." HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="1343" Canvas.Top="289" FontWeight="Bold" />
             <Label x:Name="label_C1_Temp_setpoint" Content="T°C: ...." HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="1343" Canvas.Top="306" FontWeight="Bold" />
             <Label Content="Condition 1 set points" HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="1331" Canvas.Top="257" FontWeight="Bold" />
-            <Label x:Name="label_C0_pressionEA_setpoint" Content="Pressure setpoint: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="114" />
-            <Label x:Name="label_C0_pressionEA_measure" Content="Pressure measure: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="129" />
-            <Label x:Name="label_C2M0_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="445" Canvas.Top="423" />
-            <Label x:Name="label_C2_Cond_setpoint" Content="Cond.: ...." HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="1343" Canvas.Top="468" FontWeight="Bold" />
+            <Label x:Name="label_C0_pressionEA_setpoint" Content="Pressure setpoint: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="117" Canvas.Top="101" />
+            <Label x:Name="label_C0_pressionEA_measure" Content="Pressure measure: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="117" Canvas.Top="116" />
+            <Label x:Name="label_C2M0_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="30" VerticalAlignment="Top" Canvas.Left="392" Canvas.Top="386" />
             <Label x:Name="label_C2_Temp_setpoint" Content="T°C: ...." HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="1343" Canvas.Top="486" FontWeight="Bold" />
             <Label Content="Condition 2 set points" HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="1331" Canvas.Top="437" FontWeight="Bold" />
-            <Label x:Name="label_C3M0_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="444" Canvas.Top="599" />
-            <Label x:Name="label_C3_Cond_setpoint" Content="Cond.: ...." HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="1343" Canvas.Top="645" Visibility="Hidden" />
+            <Label x:Name="label_C3M0_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="392" Canvas.Top="577" />
             <Label x:Name="label_C3_Temp_setpoint" Content="T°C: ...." HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="1343" Canvas.Top="662" FontWeight="Bold" />
             <Label Content="Condition 3 set points" HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="1331" Canvas.Top="611" FontWeight="Bold" />
-            <Label x:Name="label_C0_pressionEF_setpoint" Content="Pressure setpoint: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="246" />
-            <Label x:Name="label_C0_pressionEF_measure" Content="Pressure measure: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="261" />
-            <Label x:Name="label_C0_pressionEC_setpoint" Content="Pressure setpoint: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="372" />
-            <Label x:Name="label_C0_pressionEC_measure" Content="Pressure measure: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="387" />
-            <Label x:Name="label_C0_PressionEA_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="117" Canvas.Top="65" />
-            <Label x:Name="label_C0_PressionEF_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="117" Canvas.Top="196" />
-            <Label x:Name="label_C0_PressionEC_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="30" VerticalAlignment="Top" Canvas.Left="117" Canvas.Top="316" />
-            <Label x:Name="label_C1M0_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="444" Canvas.Top="246" />
+            <Label x:Name="label_C0_pressionEC_setpoint" Content="Pressure setpoint: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="117" Canvas.Top="304" />
+            <Label x:Name="label_C0_pressionEC_measure" Content="Pressure measure: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="117" Canvas.Top="319" />
+            <Label x:Name="label_C0_PressionEA_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="216" Canvas.Top="10" />
+            <Label x:Name="label_C0_PressionEC_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="30" VerticalAlignment="Top" Canvas.Left="216" Canvas.Top="216" />
+            <Label x:Name="label_C1M0_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="392" Canvas.Top="186" />
             <Label x:Name="label_C0M0_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="114" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C0_Temp_setpoint" Content="T°C: ...." HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="1343" Canvas.Top="131" FontWeight="Bold" />
-            <Label Content="Condition 0 set points" HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="1331" Canvas.Top="79" FontWeight="Bold" />
             <Label x:Name="label_C1M0_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="272" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C1M0_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="306" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C1M0_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="256" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C1M0_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="289" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C2M0_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="454" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C2M0_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="486" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C2M0_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="437" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C2M0_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="469" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C3M0_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="628" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C3M0_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="662" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C3M0_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="611" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C3M0_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="645" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C2M0_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="474" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C2M0_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="506" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C2M0_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="457" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C2M0_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="489" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C3M0_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="663" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C3M0_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="697" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C3M0_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="646" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C3M0_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="535" Canvas.Top="680" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C0M1_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="97" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C0M1_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="131" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C0M1_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="80" HorizontalAlignment="Left" VerticalAlignment="Top"/>
@@ -99,14 +92,14 @@
             <Label x:Name="label_C1M1_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="306" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C1M1_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="256" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C1M1_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="289" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C2M1_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="454" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C2M1_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="486" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C2M1_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="437" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C2M1_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="469" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C3M1_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="628" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C3M1_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="662" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C3M1_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="611" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C3M1_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="645" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C2M1_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="476" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C2M1_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="508" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C2M1_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="459" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C2M1_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="491" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C3M1_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="667" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C3M1_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="701" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C3M1_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="650" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C3M1_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="862" Canvas.Top="684" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C0M2_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="97" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C0M2_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="131" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C0M2_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="80" HorizontalAlignment="Left" VerticalAlignment="Top"/>
@@ -115,42 +108,32 @@
             <Label x:Name="label_C1M2_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="306" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C1M2_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="256" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             <Label x:Name="label_C1M2_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="289" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C2M2_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="454" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C2M2_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="486" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C2M2_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="437" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C2M2_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="469" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C3M2_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="628" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C3M2_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="662" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C3M2_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="611" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C3M2_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="645" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label x:Name="label_C1M0_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="446" Canvas.Top="367" />
-            <Label x:Name="label_C2M0_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="446" Canvas.Top="546" />
-            <Label x:Name="label_C1M1_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="756" Canvas.Top="360" />
-            <Label x:Name="label_C2M1_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="756" Canvas.Top="539" />
-            <Label x:Name="label_C1M2_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="1082" Canvas.Top="361" />
-            <Label x:Name="label_C2M2_Cond_sortiePID" Content="Valve: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="1082" Canvas.Top="540" />
-            <Label x:Name="label_C0M1_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="769" Canvas.Top="68" />
-            <Label x:Name="label_C2M1_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="770" Canvas.Top="423" />
-            <Label x:Name="label_C3M1_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="769" Canvas.Top="599" />
-            <Label x:Name="label_C1M1_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="769" Canvas.Top="246" />
-            <Label x:Name="label_C0M2_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="1094" Canvas.Top="68" />
-            <Label x:Name="label_C2M2_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="1095" Canvas.Top="424" />
-            <Label x:Name="label_C3M2_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="1094" Canvas.Top="600" />
-            <Label x:Name="label_C1M2_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="1094" Canvas.Top="247" />
-            <Label x:Name="label_C0_debitEC_Copy" Content="In Situ Data:" HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="467" FontWeight="Bold" />
-            <Label x:Name="label_IS_Temp" Content="Temperature: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="487" />
-            <Label x:Name="label_IS_Salinity" Content="Salinity: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="507" />
-            <Label x:Name="label_IS_Time" Content="Time: ..." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="546" />
+            <Label x:Name="label_C2M2_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="476" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C2M2_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="508" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C2M2_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="459" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C2M2_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="491" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C3M2_O2" Content="O2: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="667" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C3M2_Temp" Content="T°C: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="701" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C3M2_Flowrate" Content="Flowrate: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="650" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C3M2_Cond" Content="Cond.: ...." Width="150" Height="30" Canvas.Left="1188" Canvas.Top="684" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_C2M1_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="715" Canvas.Top="387" />
+            <Label x:Name="label_C3M1_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="715" Canvas.Top="579" />
+            <Label x:Name="label_C1M1_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="715" Canvas.Top="186" />
+            <Label x:Name="label_C2M2_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="1050" Canvas.Top="387" />
+            <Label x:Name="label_C3M2_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="1050" Canvas.Top="579" />
+            <Label x:Name="label_C1M2_Temp_sortiePID" Content="V3V: ...." HorizontalAlignment="Left" Width="150" Height="29" VerticalAlignment="Top" Canvas.Left="1050" Canvas.Top="186" />
             <Label Content="M0" Height="37" Canvas.Left="546" Canvas.Top="26" Width="48" FontSize="24" FontWeight="Bold"/>
             <Label Content="M1" Height="37" Canvas.Left="872" Canvas.Top="26" Width="48" FontSize="24" FontWeight="Bold"/>
             <Label Content="M2" Height="37" Canvas.Left="1197" Canvas.Top="26" Width="48" FontSize="24" FontWeight="Bold"/>
-            <Label Content="C0" Height="37" Canvas.Left="371" Canvas.Top="131" Width="48" FontSize="24" FontWeight="Bold"/>
-            <Label Content="C1" Height="37" Canvas.Left="371" Canvas.Top="336" Width="48" FontSize="24" FontWeight="Bold"/>
-            <Label Content="C2" Height="37" Canvas.Left="371" Canvas.Top="513" Width="48" FontSize="24" FontWeight="Bold"/>
-            <Label Content="C3" Height="37" Canvas.Left="371" Canvas.Top="701" Width="48" FontSize="24" FontWeight="Bold"/>
+            <Label Content="C0" Height="37" Canvas.Left="371" Canvas.Top="103" Width="48" FontSize="24" FontWeight="Bold"/>
+            <Label Content="C1" Height="37" Canvas.Left="371" Canvas.Top="265" Width="48" FontSize="24" FontWeight="Bold"/>
+            <Label Content="C2" Height="37" Canvas.Left="371" Canvas.Top="477" Width="48" FontSize="24" FontWeight="Bold"/>
+            <Label Content="C3" Height="37" Canvas.Left="371" Canvas.Top="662" Width="48" FontSize="24" FontWeight="Bold"/>
             <Button x:Name="btn_stop" Content="STOP" Canvas.Left="1389" Canvas.Top="731" Width="131" Height="37" Click="btn_stop_Click"/>
-            <Label x:Name="label_IS_Oxygen" Content="Oxygen: ..." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Canvas.Left="34" Canvas.Top="526" />
-            <Label x:Name="label_total_flowrate" Content="Total Flowrate: ...." Width="207" Height="30" Canvas.Left="34" Canvas.Top="26" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label x:Name="label_total_flowrate" Content="Total Flowrate: ...." Width="207" Height="30" Canvas.Left="1338" Canvas.Top="50" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label Content="Control Condition mean temperature" HorizontalAlignment="Left" Width="252" Height="28" VerticalAlignment="Top" Canvas.Left="1331" Canvas.Top="110" FontWeight="Bold" />
+            <Label x:Name="label_C0_Temp_mean" Content="T°C: ...." HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" Canvas.Left="1343" Canvas.Top="146" FontWeight="Bold" />
+            <Image Height="133" Canvas.Left="10" Source="logoFACEIT.png" Stretch="Fill" Canvas.Top="690" Width="299"/>
         </Canvas>
         <!--<Image Margin="10,25,0,0" Source="CocoriCO2 - P&amp;ID Container.png" Width="1280" Height="720" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         

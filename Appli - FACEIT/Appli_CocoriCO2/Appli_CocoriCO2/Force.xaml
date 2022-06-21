@@ -7,16 +7,11 @@
         mc:Ignorable="d"
         Title="Force" Height="248.316" Width="541.192" Closing="Window_Closing">
     <Grid>
-        <Label x:Name="label_C0_debitEC_Copy" Content="FerryBox In Situ Data:" HorizontalAlignment="Left" Width="150" Height="28" VerticalAlignment="Top" FontWeight="Bold" Margin="29,50,0,0" />
+        <Label x:Name="label_C0_debitEC_Copy" Content="Temperature regulation reference:" HorizontalAlignment="Left" Width="205" Height="28" VerticalAlignment="Top" FontWeight="Bold" Margin="29,50,0,0" />
         <Label x:Name="label_IS_Temp" Content="Temperature: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Margin="29,70,0,0" />
-        <Label x:Name="label_IS_Salinity" Content="Salinity: ...." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Margin="29,90,0,0" />
-        <Label x:Name="label_IS_Time" Content="Time: ..." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Margin="29,129,0,0" />
-        <Label x:Name="label_IS_Oxygen" Content="Oxygen: ..." HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Margin="29,109,0,0" />
         <TextBox x:Name="tb_temperature" HorizontalAlignment="Left" Height="23" Margin="332,90,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"/>
         <CheckBox x:Name="checkBox_ForceInSitu" Content="Use these values as In-Situ Data" HorizontalAlignment="Left" Margin="254,58,0,0" VerticalAlignment="Top"/>
         <Label x:Name="label_IS_Temp_Copy" Content="Temperature:" HorizontalAlignment="Left" Width="105" Height="28" VerticalAlignment="Top" Margin="249,88,0,0" />
-        <Label x:Name="label_IS_Salinity_Copy" Content="Salinity:" HorizontalAlignment="Left" Width="220" Height="28" VerticalAlignment="Top" Margin="277,117,0,0" />
-        <TextBox x:Name="tb_salinity" HorizontalAlignment="Left" Height="23" Margin="332,121,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84"/>
 
     </Grid>
 </Window>

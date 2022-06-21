@@ -23,7 +23,6 @@ namespace Appli_CocoriCO2
         {
             InitializeComponent();
             tb_temperature.Text = Properties.Settings.Default["ForceInSituTemp"].ToString();
-            tb_salinity.Text = Properties.Settings.Default["ForceInSituSal"].ToString();
             if((bool)Properties.Settings.Default["ForceInSituCheckbox"]) checkBox_ForceInSitu.IsChecked = true;
             else checkBox_ForceInSitu.IsChecked = false;
         }
@@ -31,7 +30,6 @@ namespace Appli_CocoriCO2
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Properties.Settings.Default.ForceInSituTemp = tb_temperature.Text;
-            Properties.Settings.Default.ForceInSituSal = tb_salinity.Text;
             Properties.Settings.Default.ForceInSituCheckbox = (bool)checkBox_ForceInSitu.IsChecked;
             Properties.Settings.Default.Save();
             this.Hide();
