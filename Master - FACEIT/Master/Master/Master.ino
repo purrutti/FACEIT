@@ -43,7 +43,7 @@ const byte PIN_V2V_M2 = 7;
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xEA };
 // Set the static IP address to use if the DHCP fails to assign
 //IPAddress ip(192, 168, 1, 1);
-IPAddress ip(172, 16, 253, 10);
+IPAddress ip(192, 168, 51, 100);
 
 
 

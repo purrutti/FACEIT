@@ -7,9 +7,8 @@ Author : pierr
 #include <TimeLib.h>
 #include <EEPROMex.h>
 #include <ArduinoJson.h>
-#include "C:\Users\FACE-IT\Desktop\FACEIT\libraries\cocorico2\Hamilton.h"
-#include "C:\Users\FACE-IT\Desktop\FACEIT\libraries\cocorico2\Mesocosmes_FACEIT.h"
-#include "C:\Users\FACE-IT\Desktop\FACEIT\libraries\cocorico2\Condition_FACEIT.h"
+#include "C:\Users\pierr\OneDrive\Documents\Arduino\libraries\cocorico2\Mesocosmes_FACEIT.h"
+#include "C:\Users\pierr\OneDrive\Documents\Arduino\libraries\cocorico2\Condition_FACEIT.h"
 #include <Ethernet.h>
 #include <WebSocketsClient.h>
 #include <RTC.h>
@@ -22,7 +21,7 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, CONDID };
 
 // Set the static IP address to use if the DHCP fails to assign
 //IPAddress ip(192, 168, 1, 3);
-IPAddress ip(172, 16, 253, 10 + CONDID);
+IPAddress ip(192, 168, 51, 100 + CONDID);
 
 /***** PIN ASSIGNMENTS *****/
 const byte PIN_DEBITMETRE_M0 = 57;
@@ -211,7 +210,7 @@ void setup() {
     }
     Serial.println("Ethernet connected");
 
-    webSocket.begin("172.16.253.10", 81);
+    webSocket.begin("192.168.51.100", 81);
 
     webSocket.onEvent(webSocketEvent);
 
